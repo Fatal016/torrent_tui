@@ -7,8 +7,19 @@
 #include <wchar.h>
 
 #include "../Inc/main.h"
+#include <termios.h>
+
+// Function to set the terminal to non-canonical mode
+void set_noncanonical_mode() {
+	struct termios term;
+	tcgetattr(STDIN_FILENO, &term);
+	term.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
+	tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
 
 int main(int argc, char** argv) {
+	set_noncanonical_mode();
+
 	
 	wchar_t *category_menu_items[] = {
 		L"Torrent Info",
@@ -24,7 +35,9 @@ int main(int argc, char** argv) {
 		.ref_y = 20,
 		.item_index = 0,
 		.size_x = max_size(category_menu_items, category_menu_size),
-		.size_y = category_menu_size
+		.size_y = category_menu_size,
+		.cur_x = 0,
+		.cur_y = 0
 	};
 
 	int bytes_waiting;
@@ -41,62 +54,63 @@ int main(int argc, char** argv) {
 	draw_menu(&category_menu);
 	
 
+	category_menu.cur_y = 1;
 	moveCursor(category_menu.ref_x + 1, category_menu.ref_y + 1);
-	
-	/* This doesn't fully work since I want it based on the box, not the text */
-	wprintf(L"\033[30;47m %ls \033[?25l", category_menu.items[0]);
+	wprintf(L"\033[47m%*s", wcslen(category_menu.items[0]) + 2, "");
+	moveCursor(category_menu.ref_x + 1, category_menu.ref_y + 1);
+	wprintf(L"\033[30m %ls", category_menu.items[0]);
+
+//wprintf(L"\033[30;47m %ls ", category_menu.items[0]);
 
 	
 	//wprintf(L"\033[47m%20s\033[0m", "");
 	//wprintf(L"\x1b[30m[%dC", 20);
 	//wprintf(L"\x1b[47m\x1b[30m[%dC", wcslen(category_menu.items[0]));
+	//wprintf(L"\033[0m");
+
+
+	wprintf(L"\033[?25l");
 
 	fflush(stdout);
 
-	char c;
+
+
+	int ch;
+	//wprintf(L"\033[2J\033[H");
+
 
 	while (1) {
-		// Check if input is available
-		ioctl(STDIN_FILENO, FIONREAD, &bytes_waiting);
+		ch = getchar();
 
-		if (bytes_waiting > 0) {
-			c = getchar();  // Read a character from stdin
-		wprintf(L"in here\n");
-
-			if (c == 27) {  // Check if it's the escape character (ASCII 27)
-				if (getchar() == '[') {  // Check if the next character is '['
-					switch (getchar()) {  // Read the actual key code
-						case 'A':
-							printf("Up arrow key pressed\n");
-							break;
-						case 'B':
-							wprintf(L"Down arrow key pressed\n");
-							break;
-						case 'C':
-							printf("Right arrow key pressed\n");
-							break;
-						case 'D':
-							printf("Left arrow key pressed\n");
-							break;
-						default:
-							break;
-					}
+		switch(ch) {
+			case 65:
+				if (category_menu.cur_y > 1) {
+					clear_style(&category_menu);
+					category_menu.cur_y--;
+					set_style(&category_menu);
 				}
-			}
-
-			// Exit the loop on 'q' key press
-			if (c == 'q') {
 				break;
-			}
+			case 66:
+				if (category_menu.cur_y < category_menu.size_y) {
+					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
+					wprintf(L"\033[0m%*s", wcslen(category_menu.items[category_menu.cur_y - 1]) + 2, "");
+					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
+					wprintf(L"\033[0m %ls", category_menu.items[category_menu.cur_y - 1]);
+				
+
+					category_menu.cur_y++;
+					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
+					wprintf(L"\033[47m%*s", wcslen(category_menu.items[category_menu.cur_y - 1]) + 2, "");
+					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
+					wprintf(L"\033[30m %ls", category_menu.items[category_menu.cur_y - 1]);
+
+					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
+				}
+				break;	
 		}
 
-		// Optionally sleep or perform other tasks here
+		fflush(stdout);
 	}
-
-
-
-
-	while (1) {}
 }
 
 int max_size(wchar_t** items, int len)
@@ -155,4 +169,22 @@ int draw_menu(struct menu_t *menu)
 void moveCursor(int x, int y)
 {
 	wprintf(L"\033[%d;%dH", y, x);
+}
+
+int clear_style(struct menu_t *menu) {
+	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	wprintf(L"\033[0m%*s", wcslen(menu->items[menu->cur_y - 1]) + 2, "");
+	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	wprintf(L"\033[0m %ls", menu->items[menu->cur_y - 1]);
+
+	return 0;
+}
+
+int set_style(struct menu_t *menu) {
+	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	wprintf(L"\033[47m%*s", wcslen(menu->items[menu->cur_y - 1]) + 2, "");
+	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	wprintf(L"\033[30m %ls", menu->items[menu->cur_y - 1]);
+
+	return 0;
 }
