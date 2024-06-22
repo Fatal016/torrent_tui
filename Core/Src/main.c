@@ -27,6 +27,8 @@ int main(int argc, char** argv) {
 		.size_y = category_menu_size
 	};
 
+	int bytes_waiting;
+
 
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -35,11 +37,64 @@ int main(int argc, char** argv) {
 
 	wprintf(L"\033[2J\033[H");
 
-	draw_menu(&category_menu);
-	moveCursor(category_menu.ref_x + 2, category_menu.ref_y + 1);
 
+	draw_menu(&category_menu);
+	
+
+	moveCursor(category_menu.ref_x + 1, category_menu.ref_y + 1);
+	
+	/* This doesn't fully work since I want it based on the box, not the text */
+	wprintf(L"\033[30;47m %ls \033[?25l", category_menu.items[0]);
+
+	
+	//wprintf(L"\033[47m%20s\033[0m", "");
+	//wprintf(L"\x1b[30m[%dC", 20);
+	//wprintf(L"\x1b[47m\x1b[30m[%dC", wcslen(category_menu.items[0]));
 
 	fflush(stdout);
+
+	char c;
+
+	while (1) {
+		// Check if input is available
+		ioctl(STDIN_FILENO, FIONREAD, &bytes_waiting);
+
+		if (bytes_waiting > 0) {
+			c = getchar();  // Read a character from stdin
+		wprintf(L"in here\n");
+
+			if (c == 27) {  // Check if it's the escape character (ASCII 27)
+				if (getchar() == '[') {  // Check if the next character is '['
+					switch (getchar()) {  // Read the actual key code
+						case 'A':
+							printf("Up arrow key pressed\n");
+							break;
+						case 'B':
+							wprintf(L"Down arrow key pressed\n");
+							break;
+						case 'C':
+							printf("Right arrow key pressed\n");
+							break;
+						case 'D':
+							printf("Left arrow key pressed\n");
+							break;
+						default:
+							break;
+					}
+				}
+			}
+
+			// Exit the loop on 'q' key press
+			if (c == 'q') {
+				break;
+			}
+		}
+
+		// Optionally sleep or perform other tasks here
+	}
+
+
+
 
 	while (1) {}
 }
@@ -74,7 +129,6 @@ int draw_box(int size_x, int size_y, int ref_x, int ref_y)
 
 	/* Sides */
 	for (int i = 0; i < size_y; i++) {
-
 		wprintf(L"\033[%dC%lc\033[%dC%lc\n", ref_x-1, 0x2502, size_x + 1, 0x2502);
 	}	
 
@@ -97,7 +151,6 @@ int draw_menu(struct menu_t *menu)
 	}
 	return 0;
 }
-
 
 void moveCursor(int x, int y)
 {
