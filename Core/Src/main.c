@@ -92,19 +92,9 @@ int main(int argc, char** argv) {
 				break;
 			case 66:
 				if (category_menu.cur_y < category_menu.size_y) {
-					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
-					wprintf(L"\033[0m%*s", wcslen(category_menu.items[category_menu.cur_y - 1]) + 2, "");
-					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
-					wprintf(L"\033[0m %ls", category_menu.items[category_menu.cur_y - 1]);
-				
-
+					clear_style(&category_menu);
 					category_menu.cur_y++;
-					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
-					wprintf(L"\033[47m%*s", wcslen(category_menu.items[category_menu.cur_y - 1]) + 2, "");
-					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
-					wprintf(L"\033[30m %ls", category_menu.items[category_menu.cur_y - 1]);
-
-					moveCursor(category_menu.ref_x + 1, category_menu.ref_y + category_menu.cur_y);
+					set_style(&category_menu);
 				}
 				break;	
 		}
@@ -173,7 +163,7 @@ void moveCursor(int x, int y)
 
 int clear_style(struct menu_t *menu) {
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[0m%*s", wcslen(menu->items[menu->cur_y - 1]) + 2, "");
+	wprintf(L"\033[0m%*s", menu->size_x + 1, "");
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
 	wprintf(L"\033[0m %ls", menu->items[menu->cur_y - 1]);
 
@@ -182,7 +172,7 @@ int clear_style(struct menu_t *menu) {
 
 int set_style(struct menu_t *menu) {
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[47m%*s", wcslen(menu->items[menu->cur_y - 1]) + 2, "");
+	wprintf(L"\033[47m%*s", menu->size_x + 1, "");
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
 	wprintf(L"\033[30m %ls", menu->items[menu->cur_y - 1]);
 
