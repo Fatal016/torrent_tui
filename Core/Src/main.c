@@ -8,58 +8,35 @@
 
 #include "../Inc/main.h"
 
-
 int main(int argc, char** argv) {
 	
-
-	wchar_t *category_menu[] = {
+	wchar_t *category_menu_items[] = {
 		L"Torrent Info",
 		L"Tracker Info",
 		L"Meta Data",
 		L"Files"
 	};
-
 	int category_menu_size = 4;
+
+	struct menu_t category_menu = {
+		.items = category_menu_items,
+		.ref_x = 40,
+		.ref_y = 20,
+		.item_index = 0,
+		.size_x = max_size(category_menu_items, category_menu_size),
+		.size_y = category_menu_size
+	};
 
 
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-	//printf("\033[2J\033[H");
 	setlocale(LC_CTYPE, "");  
 
 	wprintf(L"\033[2J\033[H");
 
-	
-	//printf("\f");
-	//printf("\033[2J");
-	//printf("\033[H");
-
-//	draw_box(w.ws_row, w.ws_col - 2);
-
-
-	draw_box(max_size(category_menu, category_menu_size), category_menu_size, 0,0 );
-	//moveCursor(1, 1);
-	wprintf(L"%ls", category_menu[0]);
-
-
-
-/*
-	wprintf(L"%lc", 0x2514);
-	for (int i = 0; i < w.ws_col - 2; i++) {
-		wprintf(L"%lc", 0x2500);	
-	}
-	wprintf(L"%lc\n", 0x2518);
-	for (int i = 0; i < category_menu_size; i++) {
-		wprintf(L"%lc")
-	}	
-*/
-
-
-	//wprintf(L"%lc Announce List", 0x2502);
-
-
-
+	draw_menu(&category_menu);
+	moveCursor(category_menu.ref_x + 2, category_menu.ref_y + 1);
 
 
 	fflush(stdout);
@@ -80,16 +57,16 @@ int max_size(wchar_t** items, int len)
 
 	return max;
 */
-	return 12;
+	return 13;
 }
 
 int draw_box(int size_x, int size_y, int ref_x, int ref_y) 
 {
-	wprintf(L"\033[%d;%dH", ref_x, ref_y);
+	wprintf(L"\033[%d;%dH", ref_y, ref_x);
 
 	/* Upper bar */
 	wprintf(L"%lc", 0x250C);
-	for (int i = 0; i < size_x + 2; i++) {
+	for (int i = 0; i < size_x + 1; i++) {
 		wprintf(L"%lc", 0x2500);
 	}
 	wprintf(L"%lc\n", 0x2510);
@@ -97,12 +74,13 @@ int draw_box(int size_x, int size_y, int ref_x, int ref_y)
 
 	/* Sides */
 	for (int i = 0; i < size_y; i++) {
-		wprintf(L"%lc\033[%dC%lc\n", 0x2502, size_x + 2, 0x2502);
+
+		wprintf(L"\033[%dC%lc\033[%dC%lc\n", ref_x-1, 0x2502, size_x + 1, 0x2502);
 	}	
 
 	/* Lower Bar */
-	wprintf(L"%lc", 0x2514);
-	for (int i = 0; i < size_x + 2; i++) {
+	wprintf(L"\033[%dC%lc", ref_x-1, 0x2514);
+	for (int i = 0; i < size_x + 1; i++) {
 		wprintf(L"%lc", 0x2500);
 	}
 	wprintf(L"%lc", 0x2518);
@@ -110,8 +88,18 @@ int draw_box(int size_x, int size_y, int ref_x, int ref_y)
 	return 0;
 }
 
+int draw_menu(struct menu_t *menu)
+{
+	draw_box(menu->size_x, menu->size_y, menu->ref_x, menu->ref_y);
+	for (int i = 0; i < menu->size_y; i++) {
+		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
+		wprintf(L"%ls", menu->items[i]);
+	}
+	return 0;
+}
+
 
 void moveCursor(int x, int y)
 {
-	printf("\033[%d;%dH", y, x);
+	wprintf(L"\033[%d;%dH", y, x);
 }
