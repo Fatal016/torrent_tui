@@ -7,7 +7,8 @@ Core/Src/menu.c
 
 HEADERS = \
 Core/Inc/tui.h \
-Core/Inc/menu.h
+Core/Inc/menu.h \
+Core/Inc/bencode.h
 
 EXECUTABLE = tui
 

@@ -9,12 +9,41 @@
 
 #include "../Inc/tui.h"
 #include "../Inc/menu.h"
+#include "../Inc/bencode.h"
 
 int main(int argc, char** argv) {
 
+	int result;
+
 	/* Setting non-canonical so getchar() is processed immediately */
 	set_noncanonical_mode();
-	
+
+
+	if (argc != 2) {
+		printf("Usage: ./tui <bencode file>");
+		exit(-1);
+	}
+
+	char *filepath = argv[1];
+
+	struct bencode_module bencode = {
+		.announce               = NULL,
+		.announce_list          = NULL,
+		.comment                = NULL,
+		.created_by             = NULL,
+		.encoding               = NULL,
+		.info                   = NULL,
+		.url_list               = NULL,
+		.head_pointer           = NULL,
+		.size_pointer           = NULL,
+		.announce_list_index    = 0,
+		.info_file_index        = 0,
+		.file_path_index        = 0,
+		.url_list_index         = 0
+	};
+
+	result = parse_single(filepath, &bencode);
+
 	struct menu_t *active_menu = &category_menu;
 
 
