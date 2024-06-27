@@ -7,31 +7,16 @@
 #include <wchar.h>
 #include <termios.h>
 
-#include "../Inc/main.h"
+#include "../Inc/tui.h"
+#include "../Inc/menu.h"
 
 int main(int argc, char** argv) {
 
 	/* Setting non-canonical so getchar() is processed immediately */
 	set_noncanonical_mode();
 	
-	wchar_t *category_menu_items[] = {
-		L"Torrent Info",
-		L"Tracker Info",
-		L"Meta Data",
-		L"Files"
-	};
-	int category_menu_size = 4;
+	struct menu_t *active_menu = &category_menu;
 
-	struct menu_t category_menu = {
-		.items = category_menu_items,
-		.ref_x = 14,
-		.ref_y = 14,
-		.item_index = 0,
-		.size_x = max_size(category_menu_items, category_menu_size),
-		.size_y = category_menu_size,
-		.cur_x = 0,
-		.cur_y = 0
-	};
 
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -60,47 +45,60 @@ int main(int argc, char** argv) {
 
 		switch(ch) {
 			case 65:
-				if (category_menu.cur_y > 1) {
-					clear_style(&category_menu);
-					category_menu.cur_y--;
-					set_style(&category_menu);
+				if (active_menu->cur_y > 1) {
+					clear_style(active_menu);
+					active_menu->cur_y--;
+					set_style(active_menu);
 				} else {
-					clear_style(&category_menu);
-					category_menu.cur_y = category_menu.size_y;
-					set_style(&category_menu);
+					clear_style(active_menu);
+					active_menu->cur_y = active_menu->size_y;
+					set_style(active_menu);
 				}
 				break;
 			case 66:
-				if (category_menu.cur_y < category_menu.size_y) {
-					clear_style(&category_menu);
-					category_menu.cur_y++;
-					set_style(&category_menu);
+				if (active_menu->cur_y < active_menu->size_y) {
+					clear_style(active_menu);
+					active_menu->cur_y++;
+					set_style(active_menu);
 				} else {
-					clear_style(&category_menu);
-					category_menu.cur_y = 1;
-					set_style(&category_menu);
+					clear_style(active_menu);
+					active_menu->cur_y = 1;
+					set_style(active_menu);
 				}
 				break;	
+			case 67:
+		
+				active_menu = &torrent_info_menu;
+				
+				wprintf(L"\033[0m");
+				wprintf(L"\033[2J\033[H");
+				draw_menu(active_menu);
+				active_menu->cur_y = 1;
+				set_style(active_menu);
+				
+				break;
+			case 68:
+			
+				if (active_menu->prev_menu != NULL) {	
+					active_menu = active_menu->prev_menu;
+				}
+
+				wprintf(L"\033[0m");
+				wprintf(L"\033[2J\033[H");
+
+				draw_menu(active_menu);
+				active_menu->cur_y = 1;
+				set_style(active_menu);
+	
+				break;
+			
+			default:
+			//	wprintf(L"%ld\n", ch);
+				break;
 		}
 
 		fflush(stdout);
 	}
-}
-
-int max_size(wchar_t** items, int len)
-{
-/*
-	int max = 0;
-
-	for (int i = 0; i < len; i++) {
-		if (strlen(items[i]) > max) {
-			max = strlen(items[i]);
-		}
-	}
-
-	return max;
-*/
-	return 13;
 }
 
 int draw_box(int size_x, int size_y, int ref_x, int ref_y) 

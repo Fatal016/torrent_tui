@@ -2,10 +2,12 @@ CC = gcc
 CFLAGS = -Wall -g -Wextra -pedantic
 
 CC_SOURCES = \
-Core/Src/main.c
+Core/Src/tui.c \
+Core/Src/menu.c
 
 HEADERS = \
-Core/Inc/main.h \
+Core/Inc/tui.h \
+Core/Inc/menu.h
 
 EXECUTABLE = tui
 
