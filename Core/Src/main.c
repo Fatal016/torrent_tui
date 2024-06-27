@@ -24,8 +24,8 @@ int main(int argc, char** argv) {
 
 	struct menu_t category_menu = {
 		.items = category_menu_items,
-		.ref_x = 1,
-		.ref_y = 1,
+		.ref_x = 14,
+		.ref_y = 14,
 		.item_index = 0,
 		.size_x = max_size(category_menu_items, category_menu_size),
 		.size_y = category_menu_size,
@@ -64,12 +64,20 @@ int main(int argc, char** argv) {
 					clear_style(&category_menu);
 					category_menu.cur_y--;
 					set_style(&category_menu);
+				} else {
+					clear_style(&category_menu);
+					category_menu.cur_y = category_menu.size_y;
+					set_style(&category_menu);
 				}
 				break;
 			case 66:
 				if (category_menu.cur_y < category_menu.size_y) {
 					clear_style(&category_menu);
 					category_menu.cur_y++;
+					set_style(&category_menu);
+				} else {
+					clear_style(&category_menu);
+					category_menu.cur_y = 1;
 					set_style(&category_menu);
 				}
 				break;	
@@ -166,6 +174,6 @@ int set_style(struct menu_t *menu) {
 void set_noncanonical_mode() {
 	struct termios term;
 	tcgetattr(STDIN_FILENO, &term);
-	term.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
+	term.c_lflag &= ~(ICANON | ECHO);
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }
