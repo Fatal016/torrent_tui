@@ -13,6 +13,7 @@ struct menu_t {
 int max_size(wchar_t**, int);
 
 void moveCursor(int, int);
+void set_noncanonical_mode(void);
 
 int draw_box(int, int, int, int);
 

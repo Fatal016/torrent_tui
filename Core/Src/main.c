@@ -5,21 +5,14 @@
 #include <locale.h>
 #include <string.h>
 #include <wchar.h>
-
-#include "../Inc/main.h"
 #include <termios.h>
 
-// Function to set the terminal to non-canonical mode
-void set_noncanonical_mode() {
-	struct termios term;
-	tcgetattr(STDIN_FILENO, &term);
-	term.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
-	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-}
+#include "../Inc/main.h"
 
 int main(int argc, char** argv) {
-	set_noncanonical_mode();
 
+	/* Setting non-canonical so getchar() is processed immediately */
+	set_noncanonical_mode();
 	
 	wchar_t *category_menu_items[] = {
 		L"Torrent Info",
@@ -31,17 +24,14 @@ int main(int argc, char** argv) {
 
 	struct menu_t category_menu = {
 		.items = category_menu_items,
-		.ref_x = 40,
-		.ref_y = 20,
+		.ref_x = 1,
+		.ref_y = 1,
 		.item_index = 0,
 		.size_x = max_size(category_menu_items, category_menu_size),
 		.size_y = category_menu_size,
 		.cur_x = 0,
 		.cur_y = 0
 	};
-
-	int bytes_waiting;
-
 
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -55,29 +45,15 @@ int main(int argc, char** argv) {
 	
 
 	category_menu.cur_y = 1;
-	moveCursor(category_menu.ref_x + 1, category_menu.ref_y + 1);
-	wprintf(L"\033[47m%*s", wcslen(category_menu.items[0]) + 2, "");
-	moveCursor(category_menu.ref_x + 1, category_menu.ref_y + 1);
-	wprintf(L"\033[30m %ls", category_menu.items[0]);
-
-//wprintf(L"\033[30;47m %ls ", category_menu.items[0]);
-
-	
-	//wprintf(L"\033[47m%20s\033[0m", "");
-	//wprintf(L"\x1b[30m[%dC", 20);
-	//wprintf(L"\x1b[47m\x1b[30m[%dC", wcslen(category_menu.items[0]));
-	//wprintf(L"\033[0m");
+	set_style(&category_menu);	
 
 
+	/* Hiding cursor */
 	wprintf(L"\033[?25l");
 
 	fflush(stdout);
 
-
-
 	int ch;
-	//wprintf(L"\033[2J\033[H");
-
 
 	while (1) {
 		ch = getchar();
@@ -133,11 +109,19 @@ int draw_box(int size_x, int size_y, int ref_x, int ref_y)
 
 	/* Sides */
 	for (int i = 0; i < size_y; i++) {
-		wprintf(L"\033[%dC%lc\033[%dC%lc\n", ref_x-1, 0x2502, size_x + 1, 0x2502);
+		if (ref_x != 1) {
+			wprintf(L"\033[%dC", ref_x-1);
+		}
+		wprintf(L"%lc\033[%dC%lc\n", 0x2502, size_x + 1, 0x2502);
 	}	
 
 	/* Lower Bar */
-	wprintf(L"\033[%dC%lc", ref_x-1, 0x2514);
+	if (ref_x != 1) {
+		wprintf(L"\033[%dC", ref_x-1);
+	}
+	wprintf(L"%lc", 0x2514);
+	
+
 	for (int i = 0; i < size_x + 1; i++) {
 		wprintf(L"%lc", 0x2500);
 	}
@@ -177,4 +161,11 @@ int set_style(struct menu_t *menu) {
 	wprintf(L"\033[30m %ls", menu->items[menu->cur_y - 1]);
 
 	return 0;
+}
+
+void set_noncanonical_mode() {
+	struct termios term;
+	tcgetattr(STDIN_FILENO, &term);
+	term.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode and echo
+	tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }
