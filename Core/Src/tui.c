@@ -15,10 +15,6 @@ int main(int argc, char** argv) {
 
 	int result;
 
-	/* Setting non-canonical so getchar() is processed immediately */
-	set_noncanonical_mode();
-
-
 	if (argc != 2) {
 		printf("Usage: ./tui <bencode file>");
 		exit(-1);
@@ -44,6 +40,22 @@ int main(int argc, char** argv) {
 
 	result = parse_single(filepath, &bencode);
 
+	/* Setting non-canonical so getchar() is processed immediately */
+	set_noncanonical_mode();
+
+	
+	/* Want to avoid concat of w strings to avoid having to track length of menu item and item itself for live editing */
+
+	wchar_t *test = strtowstr(bencode.info->name);
+//	draw_data(&torrent_info_menu, test, 1);
+	
+
+//	resize_menu(&torrent_info_menu);
+
+
+
+	resize_menu(&category_menu);
+
 	struct menu_t *active_menu = &category_menu;
 
 
@@ -54,7 +66,7 @@ int main(int argc, char** argv) {
 
 	wprintf(L"\033[2J\033[H");
 
-
+	resize_menu(&category_menu);
 	draw_menu(&category_menu);
 	
 
@@ -73,7 +85,7 @@ int main(int argc, char** argv) {
 		ch = getchar();
 
 		switch(ch) {
-			case 65:
+			case UP_ARROW:
 				if (active_menu->cur_y > 1) {
 					clear_style(active_menu);
 					active_menu->cur_y--;
@@ -84,7 +96,7 @@ int main(int argc, char** argv) {
 					set_style(active_menu);
 				}
 				break;
-			case 66:
+			case DOWN_ARROW:
 				if (active_menu->cur_y < active_menu->size_y) {
 					clear_style(active_menu);
 					active_menu->cur_y++;
@@ -95,7 +107,7 @@ int main(int argc, char** argv) {
 					set_style(active_menu);
 				}
 				break;	
-			case 67:
+			case RIGHT_ARROW:
 		
 				active_menu = &torrent_info_menu;
 				
@@ -106,7 +118,7 @@ int main(int argc, char** argv) {
 				set_style(active_menu);
 				
 				break;
-			case 68:
+			case LEFT_ARROW:
 			
 				if (active_menu->prev_menu != NULL) {	
 					active_menu = active_menu->prev_menu;
@@ -130,72 +142,9 @@ int main(int argc, char** argv) {
 	}
 }
 
-int draw_box(int size_x, int size_y, int ref_x, int ref_y) 
-{
-	wprintf(L"\033[%d;%dH", ref_y, ref_x);
-
-	/* Upper bar */
-	wprintf(L"%lc", 0x250C);
-	for (int i = 0; i < size_x + 1; i++) {
-		wprintf(L"%lc", 0x2500);
-	}
-	wprintf(L"%lc\n", 0x2510);
-
-
-	/* Sides */
-	for (int i = 0; i < size_y; i++) {
-		if (ref_x != 1) {
-			wprintf(L"\033[%dC", ref_x-1);
-		}
-		wprintf(L"%lc\033[%dC%lc\n", 0x2502, size_x + 1, 0x2502);
-	}	
-
-	/* Lower Bar */
-	if (ref_x != 1) {
-		wprintf(L"\033[%dC", ref_x-1);
-	}
-	wprintf(L"%lc", 0x2514);
-	
-
-	for (int i = 0; i < size_x + 1; i++) {
-		wprintf(L"%lc", 0x2500);
-	}
-	wprintf(L"%lc", 0x2518);
-
-	return 0;
-}
-
-int draw_menu(struct menu_t *menu)
-{
-	draw_box(menu->size_x, menu->size_y, menu->ref_x, menu->ref_y);
-	for (int i = 0; i < menu->size_y; i++) {
-		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
-		wprintf(L"%ls", menu->items[i]);
-	}
-	return 0;
-}
-
 void moveCursor(int x, int y)
 {
 	wprintf(L"\033[%d;%dH", y, x);
-}
-
-int clear_style(struct menu_t *menu) {
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[0m%*s", menu->size_x + 1, "");
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[0m %ls", menu->items[menu->cur_y - 1]);
-
-	return 0;
-}
-
-int set_style(struct menu_t *menu) {
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[47m%*s", menu->size_x + 1, "");
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[30m %ls", menu->items[menu->cur_y - 1]);
-
-	return 0;
 }
 
 void set_noncanonical_mode() {
@@ -203,4 +152,13 @@ void set_noncanonical_mode() {
 	tcgetattr(STDIN_FILENO, &term);
 	term.c_lflag &= ~(ICANON | ECHO);
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
+
+wchar_t* strtowstr(char *str) {
+
+	size_t len = strlen(str);
+	wchar_t *wstr = malloc(len * sizeof(wchar_t));
+	mbstowcs(wstr, str, len);
+
+	return wstr;
 }
