@@ -68,17 +68,18 @@ int main(int argc, char** argv) {
 
 	resize_menu(&category_menu);
 	draw_menu(&category_menu);
-	
+
 
 	category_menu.cur_y = 1;
 	set_style(&category_menu);	
+
 
 
 	/* Hiding cursor */
 	wprintf(L"\033[?25l");
 
 	fflush(stdout);
-
+	
 	int ch;
 
 	while (1) {

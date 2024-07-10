@@ -1,14 +1,26 @@
 #include <wchar.h>
 
 #include "../Inc/menu.h"
-
+/*
 wchar_t *torrent_info_menu_items[] = {
 	L"Filename  : ",
 	L"Info Hash : "
 };
+*/
+
+/*
+struct menu_t *torrent_info_menu_items[] = {
+	&filename__menu,
+	&info_hash_menu
+};
+*/
+
+
+
 
 struct menu_t torrent_info_menu = {
-	.items = torrent_info_menu_items,
+	.pretty_name = L"Torrent Info",
+//	.items = torrent_info_menu_items,
 	.ref_x = 1,
 	.ref_y = 1,
 	.item_index = 0,
@@ -19,33 +31,39 @@ struct menu_t torrent_info_menu = {
 	.cur_y = 0
 };
 
+struct menu_t tracker_info_menu = {
+	.pretty_name = L"Tracker Info",
+	.ref_x = 1,
+	.ref_y = 1,
+	.item_index = 0,
+	.size_y = 100,
+	.prev_menu = &category_menu,
+	.cur_x = 0,
+	.cur_y = 0
+};
 
-//const wchar_t *tracker_info_menu_items[] = {
-//
-//};
+
 
 int draw_menu(struct menu_t *menu) {
 	draw_box(menu->size_x, menu->size_y, menu->ref_x, menu->ref_y);
 	for (int i = 0; i < menu->size_y; i++) {
 		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
-		wprintf(L"%ls", menu->items[i]);
+		wprintf(L"%ls", ((struct menu_t**)menu->items)[i]->pretty_name);
 	}
 	return 0;
 }
 
 int draw_data(struct menu_t *menu, wchar_t *data, int item_index) {
-	moveCursor(menu->ref_x + 2 + wcslen(menu->items[item_index]), menu->ref_y + 1 + item_index);
-	wprintf(data);
+//	moveCursor(menu->ref_x + 2 + wcslen(menu->items[item_index]->pretty_name), menu->ref_y + 1 + item_index);
+//	wprintf(data);
 	return 0;
 }
-
-
 
 int clear_style(struct menu_t *menu) {
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
 	wprintf(L"\033[0m%*s", menu->size_x + 1, "");
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[0m %ls", menu->items[menu->cur_y - 1]);
+	wprintf(L"\033[0m %ls", ((struct menu_t**)menu->items)[menu->cur_y - 1]->pretty_name);
 
 	return 0;
 }
@@ -54,7 +72,7 @@ int set_style(struct menu_t *menu) {
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
 	wprintf(L"\033[47m%*s", menu->size_x + 1, "");
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[30m %ls", menu->items[menu->cur_y - 1]);
+	wprintf(L"\033[30m %ls", ((struct menu_t**)menu->items)[menu->cur_y - 1]->pretty_name);
 
 	return 0;
 }
@@ -108,7 +126,7 @@ int max_size(struct menu_t* menu)
 	size_t len = 0;
 
 	for (int i = 0; i < menu->size_y; i++) {
-		len = wcslen(menu->items[i]);
+		len = wcslen(((struct menu_t**)menu->items)[i]->pretty_name);
 		if (len > max) {
 			max = len;
 		}
@@ -116,32 +134,32 @@ int max_size(struct menu_t* menu)
 
 	return (int)max;
 }
-
+/*
 wchar_t *category_menu_items[] = {
 	L"Torrent Info",
 	L"Tracker Info",
 	L"Meta Data",
 	L"Files"
 };
-
-//struct menu_t category_menu_next[] = {
-//	torrent_info_menu,
-//	tracker_info_menu,
+*/
+struct menu_t *category_menu_items[] = {
+	&torrent_info_menu,
+	&tracker_info_menu
 //	meta_data_menu,
 //	files_menu
-//};
+};
+
 
 struct menu_t category_menu = {
-	.items = category_menu_items,
+	.pretty_name = L"N/A",
+	.items = (void *)category_menu_items,
+	.type = MENU,
 	.ref_x = 1,
 	.ref_y = 1,
 	.item_index = 0,
-//	.size_x = 13,
-	.size_y = 4,
+	.size_y = 2,
 	.prev_menu = NULL,
 //	.next_menu = category_menu_next,
 	.cur_x = 0,
 	.cur_y = 0
 };
-
-

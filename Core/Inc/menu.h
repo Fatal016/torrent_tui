@@ -3,9 +3,9 @@
 #ifndef H_MENU
 #define H_MENU
 
-extern wchar_t *category_menu_items[];
-extern int category_menu_size;
 extern struct menu_t category_menu;
+extern struct menu_t *category_menu_items[];
+extern int category_menu_size;
 
 extern wchar_t *torrent_info_menu_items[];
 extern int torrent_info_menu_size;

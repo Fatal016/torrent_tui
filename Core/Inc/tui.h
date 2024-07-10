@@ -6,7 +6,20 @@
 #define RIGHT_ARROW	67
 #define LEFT_ARROW	68
 
+typedef enum {
+	MENU,
+	FIELD
+} menu_type;
 
+
+
+
+struct field_t {
+	
+	wchar_t *field_name;
+
+	wchar_t *field_value;
+};
 
 struct menu_t {
 
@@ -15,6 +28,10 @@ struct menu_t {
 	/*************************/
 	
 	struct menu_t *prev_menu;
+	
+	/* Display name for menu in parent menu */
+	wchar_t *pretty_name;
+
 	struct menu_t *next_menu;
 
 
@@ -24,8 +41,14 @@ struct menu_t {
 
 	/* Textual fields in the menu */
 	/* For high-level menus, this member is compile-time */
-	wchar_t** items;
-	
+
+	//	wchar_t** items;
+	//struct menu_t** items;
+
+	void **items;
+
+	menu_type type;
+
 	/* Reference coordinate for menu. Top left corder of terminal, 1 indexed */
 	int ref_x;
 	int ref_y;
