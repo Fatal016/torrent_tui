@@ -3,25 +3,62 @@
 #ifndef H_MENU
 #define H_MENU
 
-extern struct menu_t category_menu;
-extern struct menu_t *category_menu_items[];
-extern int category_menu_size;
 
-extern struct menu_t torrent_info_menu;
-extern struct field_t torrent_info_menu_items[];
-extern int torrent_info_menu_size;
+typedef enum {
+	MENU,
+	FIELD
+} menu_type;
 
-extern wchar_t *tracker_info_menu_items[];
-extern int tracker_info_menu_size;
-extern struct menu_t tracker_info_menu;
 
-extern wchar_t *meta_data_menu_items[];
-extern int meta_data_menu_size;
-extern struct menu_t meta_data_menu;
 
-extern wchar_t *files_menu_items[];
-extern int files_menu_size;
-extern struct menu_t files_menu;
+
+struct field_t {
+	
+	wchar_t *field_name;
+	wchar_t *field_value;
+};
+
+struct menu_t {
+
+	/*************************/
+	/* Complile Time Members */
+	/*************************/
+	
+	struct menu_t *prev_menu;
+	
+	/* Display name for menu in parent menu */
+	wchar_t *pretty_name;
+
+	/*******************/
+	/* Runtime Members */
+	/*******************/	
+
+	/* Textual fields in the menu */
+	/* For high-level menus, this member is compile-time */
+
+	//	wchar_t** items;
+	//struct menu_t** items;
+
+	void **items;
+
+	menu_type type;
+
+	/* Reference coordinate for menu. Top left corder of terminal, 1 indexed */
+	int ref_x;
+	int ref_y;
+	
+	/* X and Y size of menu */
+	int size_x;
+	int size_y;
+	
+	/* Current X and Y coordinates of menu */
+	int cur_x;
+	int cur_y;
+
+	/* Index of item currently hovered over */
+	int item_index;
+
+};
 
 int max_size(struct menu_t*);
 

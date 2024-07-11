@@ -1,46 +1,6 @@
 #include <wchar.h>
 
 #include "../Inc/menu.h"
-/*
-wchar_t *torrent_info_menu_items[] = {
-	L"Filename  : ",
-	L"Info Hash : "
-};
-*/
-
-
-struct field_t torrent_info_menu_items[] = {
-	{L"Filename : ", NULL},
-	{L"Info Hash: ", NULL}
-};
-
-
-
-struct menu_t torrent_info_menu = {
-	.pretty_name = L"Torrent Info",
-	.items = (void *)torrent_info_menu_items,
-	.type = FIELD,	
-	.ref_x = 1,
-	.ref_y = 1,
-	.item_index = 0,
-	.size_y = 2,
-	.prev_menu = &category_menu,
-	.cur_x = 0,
-	.cur_y = 0
-};
-
-struct menu_t tracker_info_menu = {
-	.pretty_name = L"Tracker Info",
-	.ref_x = 1,
-	.ref_y = 1,
-	.item_index = 0,
-	.size_y = 100,
-	.prev_menu = &category_menu,
-	.cur_x = 0,
-	.cur_y = 0
-};
-
-
 
 int draw_menu(struct menu_t *menu) {
 	draw_box(menu->size_x, menu->size_y, menu->ref_x, menu->ref_y);
@@ -140,31 +100,3 @@ int max_size(struct menu_t* menu)
 
 	return (int)max;
 }
-/*
-wchar_t *category_menu_items[] = {
-	L"Torrent Info",
-	L"Tracker Info",
-	L"Meta Data",
-	L"Files"
-};
-*/
-struct menu_t *category_menu_items[] = {
-	&torrent_info_menu,
-	&tracker_info_menu
-//	meta_data_menu,
-//	files_menu
-};
-
-
-struct menu_t category_menu = {
-	.pretty_name = L"N/A",
-	.items = (void *)category_menu_items,
-	.type = MENU,
-	.ref_x = 1,
-	.ref_y = 1,
-	.item_index = 0,
-	.size_y = 2,
-	.prev_menu = NULL,
-	.cur_x = 0,
-	.cur_y = 0
-};

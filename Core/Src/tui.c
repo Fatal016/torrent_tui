@@ -9,6 +9,7 @@
 
 #include "../Inc/tui.h"
 #include "../Inc/menu.h"
+#include "../Inc/menu_templates.h"
 #include "../Inc/bencode.h"
 
 int main(int argc, char** argv) {
