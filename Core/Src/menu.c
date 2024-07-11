@@ -8,23 +8,23 @@ wchar_t *torrent_info_menu_items[] = {
 };
 */
 
-/*
-struct menu_t *torrent_info_menu_items[] = {
-	&filename__menu,
-	&info_hash_menu
+
+struct field_t torrent_info_menu_items[] = {
+	{L"Filename: ", NULL},
+	{L"Info Hash: ", NULL}
 };
-*/
+
 
 
 
 
 struct menu_t torrent_info_menu = {
 	.pretty_name = L"Torrent Info",
-//	.items = torrent_info_menu_items,
+	.items = (void *)torrent_info_menu_items,
+	.type = FIELD,	
 	.ref_x = 1,
 	.ref_y = 1,
 	.item_index = 0,
-//	.size_x = 10,
 	.size_y = 2,
 	.prev_menu = &category_menu,
 	.cur_x = 0,
@@ -159,7 +159,6 @@ struct menu_t category_menu = {
 	.item_index = 0,
 	.size_y = 2,
 	.prev_menu = NULL,
-//	.next_menu = category_menu_next,
 	.cur_x = 0,
 	.cur_y = 0
 };

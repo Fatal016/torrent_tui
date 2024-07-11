@@ -83,7 +83,9 @@ int main(int argc, char** argv) {
 	int ch;
 
 	while (1) {
-		ch = getchar();
+		//ch = getchar();
+
+		ch = RIGHT_ARROW;
 
 		switch(ch) {
 			case UP_ARROW:
@@ -109,8 +111,7 @@ int main(int argc, char** argv) {
 				}
 				break;	
 			case RIGHT_ARROW:
-		
-				active_menu = &torrent_info_menu;
+				active_menu = active_menu->items[active_menu->cur_y - 1];
 				
 				wprintf(L"\033[0m");
 				wprintf(L"\033[2J\033[H");

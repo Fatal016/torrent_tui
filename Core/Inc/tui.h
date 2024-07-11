@@ -17,7 +17,6 @@ typedef enum {
 struct field_t {
 	
 	wchar_t *field_name;
-
 	wchar_t *field_value;
 };
 
@@ -31,9 +30,6 @@ struct menu_t {
 	
 	/* Display name for menu in parent menu */
 	wchar_t *pretty_name;
-
-	struct menu_t *next_menu;
-
 
 	/*******************/
 	/* Runtime Members */
