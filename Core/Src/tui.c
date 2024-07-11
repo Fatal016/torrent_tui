@@ -74,6 +74,9 @@ int main(int argc, char** argv) {
 	set_style(&category_menu);	
 
 
+	
+	torrent_info_menu_items[0].field_value = strtowstr(argv[1]);
+
 
 	/* Hiding cursor */
 	wprintf(L"\033[?25l");
@@ -83,9 +86,7 @@ int main(int argc, char** argv) {
 	int ch;
 
 	while (1) {
-		//ch = getchar();
-
-		ch = RIGHT_ARROW;
+		ch = getchar();
 
 		switch(ch) {
 			case UP_ARROW:
@@ -111,30 +112,34 @@ int main(int argc, char** argv) {
 				}
 				break;	
 			case RIGHT_ARROW:
-				active_menu = active_menu->items[active_menu->cur_y - 1];
+				if (active_menu->type == MENU) {			
+					active_menu = active_menu->items[active_menu->cur_y - 1];
 				
-				wprintf(L"\033[0m");
-				wprintf(L"\033[2J\033[H");
-				draw_menu(active_menu);
-				active_menu->cur_y = 1;
-				set_style(active_menu);
-				
+					wprintf(L"\033[0m");
+					wprintf(L"\033[2J\033[H");
+					
+					if (active_menu->type == MENU) {
+						draw_menu(active_menu);
+					} else if (active_menu->type == FIELD) {
+						draw_field(active_menu);
+					}
+
+					//	active_menu->cur_y = 1;
+					//set_style(active_menu);
+				}	
 				break;
 			case LEFT_ARROW:
-			
 				if (active_menu->prev_menu != NULL) {	
 					active_menu = active_menu->prev_menu;
+
+					wprintf(L"\033[0m");
+					wprintf(L"\033[2J\033[H");
+
+					draw_menu(active_menu);
+					active_menu->cur_y = 1;
+					set_style(active_menu);
 				}
-
-				wprintf(L"\033[0m");
-				wprintf(L"\033[2J\033[H");
-
-				draw_menu(active_menu);
-				active_menu->cur_y = 1;
-				set_style(active_menu);
-	
 				break;
-			
 			default:
 			//	wprintf(L"%ld\n", ch);
 				break;

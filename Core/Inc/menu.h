@@ -29,7 +29,7 @@ int resize_menu(struct menu_t*);
 
 int draw_box(int, int, int, int);
 int draw_menu(struct menu_t*);
-int draw_data(struct menu_t*, wchar_t*, int);
+int draw_field(struct menu_t*);
 
 int clear_style(struct menu_t*);
 int set_style(struct menu_t*);

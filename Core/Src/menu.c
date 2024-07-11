@@ -10,11 +10,9 @@ wchar_t *torrent_info_menu_items[] = {
 
 
 struct field_t torrent_info_menu_items[] = {
-	{L"Filename: ", NULL},
+	{L"Filename : ", NULL},
 	{L"Info Hash: ", NULL}
 };
-
-
 
 
 
@@ -53,7 +51,15 @@ int draw_menu(struct menu_t *menu) {
 	return 0;
 }
 
-int draw_data(struct menu_t *menu, wchar_t *data, int item_index) {
+int draw_field(struct menu_t *menu) {
+	
+	menu->size_x = 30;
+	draw_box(menu->size_x, menu->size_y, menu->ref_x, menu->ref_y);
+	for (int i = 0; i < menu->size_y; i++) {
+		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
+		wprintf(L"%ls %ls", ((struct field_t*)menu->items)[i].field_name, ((struct field_t*)menu->items)[i].field_value);
+	}
+	return 0;
 //	moveCursor(menu->ref_x + 2 + wcslen(menu->items[item_index]->pretty_name), menu->ref_y + 1 + item_index);
 //	wprintf(data);
 	return 0;
