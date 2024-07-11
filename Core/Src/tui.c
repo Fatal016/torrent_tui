@@ -51,8 +51,6 @@ int main(int argc, char** argv) {
 //	draw_data(&torrent_info_menu, test, 1);
 	
 
-//	resize_menu(&torrent_info_menu);
-
 
 
 	resize_menu(&category_menu);
@@ -77,6 +75,7 @@ int main(int argc, char** argv) {
 
 	
 	torrent_info_menu_items[0].field_value = strtowstr(argv[1]);
+	resize_menu(&torrent_info_menu);
 
 
 	/* Hiding cursor */

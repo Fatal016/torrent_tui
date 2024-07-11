@@ -12,8 +12,6 @@ int draw_menu(struct menu_t *menu) {
 }
 
 int draw_field(struct menu_t *menu) {
-	
-	menu->size_x = 30;
 	draw_box(menu->size_x, menu->size_y, menu->ref_x, menu->ref_y);
 	for (int i = 0; i < menu->size_y; i++) {
 		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
@@ -88,11 +86,21 @@ int resize_menu(struct menu_t* menu) {
 
 int max_size(struct menu_t* menu)
 {
-	size_t max = 0;
-	size_t len = 0;
+	size_t max = 0, len;
 
 	for (int i = 0; i < menu->size_y; i++) {
-		len = wcslen(((struct menu_t**)menu->items)[i]->pretty_name);
+		len = 0;
+
+		if (menu->type == MENU) {
+			len = wcslen(((struct menu_t**)menu->items)[i]->pretty_name);
+		} else {
+			len = wcslen(((struct field_t*)menu->items)[i].field_name) + 1;
+			if (((struct field_t*)menu->items)[i].field_value != NULL) {
+				len += wcslen(((struct field_t*)menu->items)[i].field_value);
+			} else {
+				len += 6;
+			}
+		}
 		if (len > max) {
 			max = len;
 		}

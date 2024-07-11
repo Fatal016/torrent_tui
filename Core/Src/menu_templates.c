@@ -24,13 +24,10 @@ struct menu_t category_menu = {
 	.cur_y = 0
 };
 
-
 struct field_t torrent_info_menu_items[] = {
-	{L"Filename : ", NULL},
-	{L"Info Hash: ", NULL}
+	{L"Filename :", NULL},
+	{L"Info Hash:", NULL}
 };
-
-
 
 struct menu_t torrent_info_menu = {
 	.pretty_name = L"Torrent Info",
