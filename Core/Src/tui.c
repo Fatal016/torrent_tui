@@ -45,13 +45,20 @@ int main(int argc, char** argv) {
 	set_noncanonical_mode();
 
 	
-	/* Want to avoid concat of w strings to avoid having to track length of menu item and item itself for live editing */
-
-	wchar_t *test = strtowstr(bencode.info->name);
-//	draw_data(&torrent_info_menu, test, 1);
+	/* Data Initialization */
+	tracker_info_menu.size_y = bencode.announce_list_index;
 	
+	tracker_info_menu_items = (struct field_t**)malloc(tracker_info_menu.size_y * sizeof(struct field_t*));
+	tracker_info_menu.items = (void *)tracker_info_menu_items;	
 
+	for (int i = 0; i < tracker_info_menu.size_y; i++) {
+		((struct field_t**)tracker_info_menu.items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
+		((struct field_t**)tracker_info_menu.items)[i]->field_name = (wchar_t*)malloc(3 * sizeof(wchar_t));
+		((struct field_t**)tracker_info_menu.items)[i]->field_value = (wchar_t*)malloc(128 * sizeof(wchar_t));	
 
+		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_name, 3*sizeof(wchar_t), L"%03d", i); 
+		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_value, strlen(bencode.announce_list[i]) * sizeof(wchar_t), L"%s", bencode.announce_list[i]);
+	}
 
 	resize_menu(&category_menu);
 
@@ -75,6 +82,7 @@ int main(int argc, char** argv) {
 
 	
 	torrent_info_menu_items[0].field_value = strtowstr(argv[1]);
+//	swprintf(torrent_info_menu_items[0].field_value, strlen(argv[1]), L"%s", argv[1]);
 	resize_menu(&torrent_info_menu);
 
 
@@ -87,6 +95,8 @@ int main(int argc, char** argv) {
 
 	while (1) {
 		ch = getchar();
+
+	//	ch = RIGHT_ARROW;
 
 		switch(ch) {
 			case UP_ARROW:
@@ -136,7 +146,6 @@ int main(int argc, char** argv) {
 					wprintf(L"\033[2J\033[H");
 
 					draw_menu(active_menu);
-					active_menu->cur_y = 1;
 					set_style(active_menu);
 				}
 				break;

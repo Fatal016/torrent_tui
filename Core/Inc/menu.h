@@ -9,6 +9,10 @@ typedef enum {
 	FIELD
 } menu_type;
 
+typedef enum {
+	STATIC,
+	DYNAMIC
+} menu_nature;
 
 
 
@@ -42,6 +46,7 @@ struct menu_t {
 	void **items;
 
 	menu_type type;
+	menu_nature nature;
 
 	/* Reference coordinate for menu. Top left corder of terminal, 1 indexed */
 	int ref_x;

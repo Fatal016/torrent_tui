@@ -15,7 +15,12 @@ int draw_field(struct menu_t *menu) {
 	draw_box(menu->size_x, menu->size_y, menu->ref_x, menu->ref_y);
 	for (int i = 0; i < menu->size_y; i++) {
 		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
-		wprintf(L"%ls %ls", ((struct field_t*)menu->items)[i].field_name, ((struct field_t*)menu->items)[i].field_value);
+		if (menu->nature == STATIC) {
+			wprintf(L"%ls %ls", ((struct field_t*)menu->items)[i].field_name, ((struct field_t*)menu->items)[i].field_value);
+		} else if (menu->nature == DYNAMIC) {		
+
+			wprintf(L"%ls %ls", ((struct field_t**)menu->items)[i]->field_name, ((struct field_t**)menu->items)[i]->field_value);
+		}
 	}
 	return 0;
 //	moveCursor(menu->ref_x + 2 + wcslen(menu->items[item_index]->pretty_name), menu->ref_y + 1 + item_index);

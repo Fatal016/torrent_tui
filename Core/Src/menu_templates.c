@@ -10,19 +10,20 @@ struct menu_t *category_menu_items[] = {
 //	files_menu
 };
 
-
 struct menu_t category_menu = {
-	.pretty_name = L"N/A",
-	.items = (void *)category_menu_items,
-	.type = MENU,
-	.ref_x = 1,
-	.ref_y = 1,
-	.item_index = 0,
-	.size_y = 2,
-	.prev_menu = NULL,
-	.cur_x = 0,
-	.cur_y = 0
+	.pretty_name 	= L"N/A",
+	.items 			= (void *)category_menu_items,
+	.type 			= MENU,
+	.ref_x 			= 1,
+	.ref_y 			= 1,
+	.item_index 	= 0,
+	.size_y 		= 2,
+	.prev_menu 		= NULL,
+	.cur_x 			= 0,
+	.cur_y 			= 0
 };
+
+
 
 struct field_t torrent_info_menu_items[] = {
 	{L"Filename :", NULL},
@@ -30,25 +31,31 @@ struct field_t torrent_info_menu_items[] = {
 };
 
 struct menu_t torrent_info_menu = {
-	.pretty_name = L"Torrent Info",
-	.items = (void *)torrent_info_menu_items,
-	.type = FIELD,	
-	.ref_x = 1,
-	.ref_y = 1,
-	.item_index = 0,
-	.size_y = 2,
-	.prev_menu = &category_menu,
-	.cur_x = 0,
-	.cur_y = 0
+	.pretty_name 	= L"Torrent Info",
+	.items 			= (void *)torrent_info_menu_items,
+	.type 			= FIELD,
+	.nature			= STATIC,
+	.ref_x 			= 1,
+	.ref_y 			= 1,
+	.item_index 	= 0,
+	.size_y 		= 2,
+	.prev_menu 		= &category_menu,
+	.cur_x 			= 0,
+	.cur_y 			= 0
 };
 
+struct field_t **tracker_info_menu_items;
+
 struct menu_t tracker_info_menu = {
-	.pretty_name = L"Tracker Info",
-	.ref_x = 1,
-	.ref_y = 1,
-	.item_index = 0,
-	.size_y = 100,
-	.prev_menu = &category_menu,
-	.cur_x = 0,
-	.cur_y = 0
+	.pretty_name 	= L"Tracker Info",
+	.items 			= NULL,
+	.type 			= FIELD,
+	.nature			= DYNAMIC,
+	.ref_x 			= 1,
+	.ref_y 			= 1,
+	.item_index 	= 0,
+	.size_y 		= 0,
+	.prev_menu 		= &category_menu,
+	.cur_x 			= 0,
+	.cur_y 			= 0
 };
