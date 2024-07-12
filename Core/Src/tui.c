@@ -59,6 +59,8 @@ int main(int argc, char** argv) {
 		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_name, 3*sizeof(wchar_t), L"%03d", i); 
 		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_value, strlen(bencode.announce_list[i]) * sizeof(wchar_t), L"%s", bencode.announce_list[i]);
 	}
+	resize_menu(&tracker_info_menu);
+
 
 	resize_menu(&category_menu);
 

@@ -1,4 +1,7 @@
 #include <wchar.h>
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "../Inc/menu.h"
 
@@ -12,19 +15,29 @@ int draw_menu(struct menu_t *menu) {
 }
 
 int draw_field(struct menu_t *menu) {
-	draw_box(menu->size_x, menu->size_y, menu->ref_x, menu->ref_y);
-	for (int i = 0; i < menu->size_y; i++) {
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+	int size_x = w.ws_col - 2;
+	int size_y = w.ws_row - 2;
+
+	if (w.ws_col > menu->size_x) {
+		size_x = menu->size_x;
+	}
+
+	if (w.ws_row > menu->size_y) {
+		size_y = menu->size_y;
+	}
+	draw_box(size_x, size_y, menu->ref_x, menu->ref_y);
+	
+	for (int i = 0; i < size_y; i++) {
 		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
 		if (menu->nature == STATIC) {
 			wprintf(L"%ls %ls", ((struct field_t*)menu->items)[i].field_name, ((struct field_t*)menu->items)[i].field_value);
 		} else if (menu->nature == DYNAMIC) {		
-
 			wprintf(L"%ls %ls", ((struct field_t**)menu->items)[i]->field_name, ((struct field_t**)menu->items)[i]->field_value);
 		}
 	}
-	return 0;
-//	moveCursor(menu->ref_x + 2 + wcslen(menu->items[item_index]->pretty_name), menu->ref_y + 1 + item_index);
-//	wprintf(data);
 	return 0;
 }
 
@@ -99,11 +112,20 @@ int max_size(struct menu_t* menu)
 		if (menu->type == MENU) {
 			len = wcslen(((struct menu_t**)menu->items)[i]->pretty_name);
 		} else {
-			len = wcslen(((struct field_t*)menu->items)[i].field_name) + 1;
-			if (((struct field_t*)menu->items)[i].field_value != NULL) {
-				len += wcslen(((struct field_t*)menu->items)[i].field_value);
-			} else {
-				len += 6;
+			if (menu->nature == STATIC) {	
+				len = wcslen(((struct field_t*)menu->items)[i].field_name) + 1;
+				if (((struct field_t*)menu->items)[i].field_value != NULL) {
+					len += wcslen(((struct field_t*)menu->items)[i].field_value);
+				} else {
+					len += 6;
+				}
+			} else if (menu->nature == DYNAMIC) {
+				len = wcslen(((struct field_t**)menu->items)[i]->field_name) + 1;
+				if (((struct field_t**)menu->items)[i]->field_value != NULL) {
+					len += wcslen(((struct field_t**)menu->items)[i]->field_value);
+				} else {
+					len += 6;
+				}
 			}
 		}
 		if (len > max) {
