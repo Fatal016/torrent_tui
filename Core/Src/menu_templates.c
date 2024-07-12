@@ -61,6 +61,6 @@ struct menu_t tracker_info_menu = {
 	.item_index 	= 0,
 	.size_y 		= 0,
 	.prev_menu 		= &category_menu,
-	.cur_x 			= 0,
-	.cur_y 			= 0
+	.cur_x 			= 1,
+	.cur_y 			= 1
 };

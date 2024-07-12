@@ -38,24 +38,44 @@ int draw_field(struct menu_t *menu) {
 }
 
 int clear_style(struct menu_t *menu) {
+	
+	/* Move cursor to beginning of line */
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[0m%*s", menu->size_x + 1, "");
+
+	/* Reset text highlighting */
+	if (menu->type == MENU) {
+		wprintf(L"\033[0m%*s", menu->size_x + 1, "");
+	} else if (menu->type == FIELD) {
+		wprintf(L"\033[0m%*s", wcslen(((struct field_t**)menu->items)[menu->cur_y - 1]->field_name) + 1, "");
+	}
+
+	/* Move cursor back to beginning of line */
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[0m %ls", ((struct menu_t**)menu->items)[menu->cur_y - 1]->pretty_name);
+
+	/* Redraw text with default text color */
+	if (menu->type == MENU) {
+		wprintf(L"\033[0m %ls", ((struct menu_t**)menu->items)[menu->cur_y - 1]->pretty_name);
+	} else if (menu->type == FIELD) {
+		wprintf(L"\033[0m %ls", ((struct field_t**)menu->items)[menu->cur_y - 1]->field_name);
+	}
 
 	return 0;
 }
 
-/* Should implement highlight field member */
 int set_style(struct menu_t *menu) {
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	
 	if (menu->type == MENU) {
 		wprintf(L"\033[47m%*s", menu->size_x + 1, "");
-		moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	} else if (menu->type == FIELD) {
+		wprintf(L"\033[47m%*s", wcslen(((struct field_t**)menu->items)[menu->cur_y - 1]->field_name) + 1, "");
+	}
+
+	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+
+if (menu->type == MENU) {
 		wprintf(L"\033[30m %ls", ((struct menu_t**)menu->items)[menu->cur_y - 1]->pretty_name);
 	} else if (menu->type == FIELD) {
-		wprintf(L"\033[47m%*s", wcslen(menu->items[menu->cur_y - 1]) + 1, "");
-		moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
 		wprintf(L"\033[30m %ls", ((struct field_t**)menu->items)[menu->cur_y - 1]->field_name);
 	}
 	return 0;
@@ -114,20 +134,11 @@ int max_size(struct menu_t* menu)
 		if (menu->type == MENU) {
 			len = wcslen(((struct menu_t**)menu->items)[i]->pretty_name);
 		} else {
-			if (menu->nature == STATIC) {	
-				len = wcslen(((struct field_t*)menu->items)[i].field_name) + 1;
-				if (((struct field_t*)menu->items)[i].field_value != NULL) {
-					len += wcslen(((struct field_t*)menu->items)[i].field_value);
-				} else {
-					len += 6;
-				}
-			} else if (menu->nature == DYNAMIC) {
-				len = wcslen(((struct field_t**)menu->items)[i]->field_name) + 1;
-				if (((struct field_t**)menu->items)[i]->field_value != NULL) {
-					len += wcslen(((struct field_t**)menu->items)[i]->field_value);
-				} else {
-					len += 6;
-				}
+			len = wcslen(((struct field_t**)menu->items)[i]->field_name) + 1;
+			if (((struct field_t**)menu->items)[i]->field_value != NULL) {
+				len += wcslen(((struct field_t**)menu->items)[i]->field_value);
+			} else {
+				len += 6;
 			}
 		}
 		if (len > max) {

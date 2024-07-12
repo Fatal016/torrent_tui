@@ -53,10 +53,10 @@ int main(int argc, char** argv) {
 
 	for (int i = 0; i < tracker_info_menu.size_y; i++) {
 		((struct field_t**)tracker_info_menu.items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
-		((struct field_t**)tracker_info_menu.items)[i]->field_name = (wchar_t*)malloc(3 * sizeof(wchar_t));
+		((struct field_t**)tracker_info_menu.items)[i]->field_name = (wchar_t*)malloc(4 * sizeof(wchar_t));
 		((struct field_t**)tracker_info_menu.items)[i]->field_value = (wchar_t*)malloc(128 * sizeof(wchar_t));	
 
-		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_name, 3*sizeof(wchar_t), L"%03d", i); 
+		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_name, 3*sizeof(wchar_t), L"%03d:", i); 
 		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_value, strlen(bencode.announce_list[i]) * sizeof(wchar_t), L"%s", bencode.announce_list[i]);
 	}
 	resize_menu(&tracker_info_menu);
