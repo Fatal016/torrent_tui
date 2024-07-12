@@ -61,6 +61,18 @@ int main(int argc, char** argv) {
 	}
 	resize_menu(&tracker_info_menu);
 
+	
+	torrent_info_menu_items = (struct field_t**)malloc(torrent_info_menu.size_y * sizeof(struct field_t*));
+	torrent_info_menu.items = (void *)torrent_info_menu_items;
+
+	for (int i = 0; i < torrent_info_menu.size_y; i++) {
+		int namelen = wcslen(torrent_info_menu_items_template[i].field_name);
+
+		((struct field_t**)torrent_info_menu.items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
+		((struct field_t**)torrent_info_menu.items)[i]->field_name = (wchar_t*)malloc(128 * sizeof(wchar_t));
+		
+		swprintf(((struct field_t**)torrent_info_menu_items)[i]->field_name, namelen * sizeof(wchar_t), L"%ls", torrent_info_menu_items_template[i].field_name);
+	}
 
 	resize_menu(&category_menu);
 
@@ -77,13 +89,12 @@ int main(int argc, char** argv) {
 	resize_menu(&category_menu);
 	draw_menu(&category_menu);
 
-
 	category_menu.cur_y = 1;
 	set_style(&category_menu);	
 
 
 	
-	torrent_info_menu_items[0].field_value = strtowstr(argv[1]);
+	torrent_info_menu_items[0]->field_value = strtowstr(argv[1]);
 //	swprintf(torrent_info_menu_items[0].field_value, strlen(argv[1]), L"%s", argv[1]);
 	resize_menu(&torrent_info_menu);
 
@@ -137,7 +148,7 @@ int main(int argc, char** argv) {
 					}
 
 					//	active_menu->cur_y = 1;
-					//set_style(active_menu);
+					set_style(active_menu);
 				}	
 				break;
 			case LEFT_ARROW:

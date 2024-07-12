@@ -32,11 +32,7 @@ int draw_field(struct menu_t *menu) {
 	
 	for (int i = 0; i < size_y; i++) {
 		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
-		if (menu->nature == STATIC) {
-			wprintf(L"%ls %ls", ((struct field_t*)menu->items)[i].field_name, ((struct field_t*)menu->items)[i].field_value);
-		} else if (menu->nature == DYNAMIC) {		
-			wprintf(L"%ls %ls", ((struct field_t**)menu->items)[i]->field_name, ((struct field_t**)menu->items)[i]->field_value);
-		}
+		wprintf(L"%ls %ls", ((struct field_t**)menu->items)[i]->field_name, ((struct field_t**)menu->items)[i]->field_value);
 	}
 	return 0;
 }
@@ -50,12 +46,18 @@ int clear_style(struct menu_t *menu) {
 	return 0;
 }
 
+/* Should implement highlight field member */
 int set_style(struct menu_t *menu) {
 	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[47m%*s", menu->size_x + 1, "");
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
-	wprintf(L"\033[30m %ls", ((struct menu_t**)menu->items)[menu->cur_y - 1]->pretty_name);
-
+	if (menu->type == MENU) {
+		wprintf(L"\033[47m%*s", menu->size_x + 1, "");
+		moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+		wprintf(L"\033[30m %ls", ((struct menu_t**)menu->items)[menu->cur_y - 1]->pretty_name);
+	} else if (menu->type == FIELD) {
+		wprintf(L"\033[47m%*s", wcslen(menu->items[menu->cur_y - 1]) + 1, "");
+		moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+		wprintf(L"\033[30m %ls", ((struct field_t**)menu->items)[menu->cur_y - 1]->field_name);
+	}
 	return 0;
 }
 

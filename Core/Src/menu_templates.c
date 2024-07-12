@@ -25,23 +25,28 @@ struct menu_t category_menu = {
 
 
 
-struct field_t torrent_info_menu_items[] = {
+struct field_t torrent_info_menu_items_template[] = {
 	{L"Filename :", NULL},
 	{L"Info Hash:", NULL}
 };
 
+
+struct field_t **torrent_info_menu_items;
+
+
+
 struct menu_t torrent_info_menu = {
 	.pretty_name 	= L"Torrent Info",
-	.items 			= (void *)torrent_info_menu_items,
+	.items 			= NULL,
 	.type 			= FIELD,
-	.nature			= STATIC,
+	.nature			= DYNAMIC,
 	.ref_x 			= 1,
 	.ref_y 			= 1,
 	.item_index 	= 0,
 	.size_y 		= 2,
 	.prev_menu 		= &category_menu,
-	.cur_x 			= 0,
-	.cur_y 			= 0
+	.cur_x 			= 1,
+	.cur_y 			= 1
 };
 
 struct field_t **tracker_info_menu_items;
