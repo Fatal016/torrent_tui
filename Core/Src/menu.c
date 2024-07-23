@@ -32,7 +32,7 @@ int draw_field(struct menu_t *menu) {
 	
 	for (int i = 0; i < size_y; i++) {
 		moveCursor(menu->ref_x + 2, menu->ref_y + 1 + i);
-		wprintf(L"%ls %ls", ((struct field_t**)menu->items)[i]->field_name, ((struct field_t**)menu->items)[i]->field_value);
+		wprintf(L"%ls %ls", ((struct field_t**)menu->items)[i + menu->item_offset]->field_name, ((struct field_t**)menu->items)[i + menu->item_offset]->field_value);
 	}
 	return 0;
 }
@@ -62,16 +62,31 @@ int clear_style(struct menu_t *menu) {
 	return 0;
 }
 
-int set_style(struct menu_t *menu) {
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+int set_style(struct menu_t *menu, struct winsize *w) {
+	
+
+		/* Need to change how this is handled to prevent from making holding cursor at bottom of screen so complicated */
+
+
+	if (menu->cur_y > w->ws_row - 2) {
+		moveCursor(menu->ref_x + 1, menu->ref_y + w->ws_row - 2);
+	} else {
+		moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	}
+
 	
 	if (menu->type == MENU) {
 		wprintf(L"\033[47m%*s", menu->size_x + 1, "");
 	} else if (menu->type == FIELD) {
 		wprintf(L"\033[47m%*s", wcslen(((struct field_t**)menu->items)[menu->cur_y - 1]->field_name) + 1, "");
 	}
+	
+	if (menu->cur_y > w->ws_row - 2) {
+		moveCursor(menu->ref_x + 1, menu->ref_y + w->ws_row - 2);
+	} else {
+		moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	}
 
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
 
 if (menu->type == MENU) {
 		wprintf(L"\033[30m %ls", ((struct menu_t**)menu->items)[menu->cur_y - 1]->pretty_name);

@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	draw_menu(&category_menu);
 
 	category_menu.cur_y = 1;
-	set_style(&category_menu);	
+	set_style(&category_menu, &w);	
 
 
 	
@@ -109,29 +109,49 @@ int main(int argc, char** argv) {
 	while (1) {
 		ch = getchar();
 
-	//	ch = RIGHT_ARROW;
-
 		switch(ch) {
 			case UP_ARROW:
-				if (active_menu->cur_y > 1) {
-					clear_style(active_menu);
-					active_menu->cur_y--;
-					set_style(active_menu);
+				if (active_menu->size_y > w.ws_row && active_menu->cur_y == 1) {
+					wprintf(L"\033[1T");
+				//	draw_box(active_menu->size_x, active_menu->size_y, 1, 1);
+				//	draw_menu(active_menu);
 				} else {
-					clear_style(active_menu);
-					active_menu->cur_y = active_menu->size_y;
-					set_style(active_menu);
+
+					if (active_menu->cur_y > 1) {
+						clear_style(active_menu);
+						active_menu->cur_y--;
+						set_style(active_menu, &w);
+					} else {
+						clear_style(active_menu);
+						active_menu->cur_y = active_menu->size_y;
+						set_style(active_menu, &w);
+					}
 				}
 				break;
 			case DOWN_ARROW:
-				if (active_menu->cur_y < active_menu->size_y) {
+				if (active_menu->size_y > w.ws_row && active_menu->cur_y > w.ws_row - 3 && active_menu->cur_y < active_menu->size_y) {
+					draw_box(active_menu->size_x, active_menu->size_y, active_menu->ref_x, active_menu->ref_y);
+					wprintf(L"\033[1S");
 					clear_style(active_menu);
 					active_menu->cur_y++;
-					set_style(active_menu);
+
+					wprintf(L"\033[2J\033[H");
+					//active_menu->cur_y = 1;
+					active_menu->item_offset++;
+					draw_field(active_menu);
+					set_style(active_menu, &w);
+					wprintf(L"\033[0m");
 				} else {
-					clear_style(active_menu);
-					active_menu->cur_y = 1;
-					set_style(active_menu);
+					active_menu->item_offset = 0;
+					if (active_menu->cur_y < active_menu->size_y) {
+						clear_style(active_menu);
+						active_menu->cur_y++;
+						set_style(active_menu, &w);
+					} else {
+						clear_style(active_menu);
+						active_menu->cur_y = 1;
+						set_style(active_menu, &w);
+					}
 				}
 				break;	
 			case RIGHT_ARROW:
@@ -148,7 +168,7 @@ int main(int argc, char** argv) {
 					}
 
 					//	active_menu->cur_y = 1;
-					set_style(active_menu);
+					set_style(active_menu, &w);
 				}	
 				break;
 			case LEFT_ARROW:
@@ -159,7 +179,7 @@ int main(int argc, char** argv) {
 					wprintf(L"\033[2J\033[H");
 
 					draw_menu(active_menu);
-					set_style(active_menu);
+					set_style(active_menu, &w);
 				}
 				break;
 			default:

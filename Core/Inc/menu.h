@@ -1,54 +1,28 @@
 #include "tui.h"
+#include <sys/ioctl.h>
 
 #ifndef H_MENU
 #define H_MENU
-
 
 typedef enum {
 	MENU,
 	FIELD
 } menu_type;
 
-typedef enum {
-	STATIC,
-	DYNAMIC
-} menu_nature;
-
-
-
 struct field_t {
-	
 	wchar_t *field_name;
 	wchar_t *field_value;
 };
 
 struct menu_t {
 
-	/*************************/
-	/* Complile Time Members */
-	/*************************/
-	
 	struct menu_t *prev_menu;
-	
-	/* Display name for menu in parent menu */
 	wchar_t *pretty_name;
-
-	/*******************/
-	/* Runtime Members */
-	/*******************/	
-
-	/* Textual fields in the menu */
-	/* For high-level menus, this member is compile-time */
-
-	//	wchar_t** items;
-	//struct menu_t** items;
-
 	void **items;
-
+	int item_offset;
 	menu_type type;
-	menu_nature nature;
 
-	/* Reference coordinate for menu. Top left corder of terminal, 1 indexed */
+	/* Reference coordinate for menu from top left corder of terminal, 1 indexed */
 	int ref_x;
 	int ref_y;
 	
@@ -56,13 +30,9 @@ struct menu_t {
 	int size_x;
 	int size_y;
 	
-	/* Current X and Y coordinates of menu */
+	/* Current X and Y coordinates of cursor in terminal */
 	int cur_x;
 	int cur_y;
-
-	/* Index of item currently hovered over */
-	int item_index;
-
 };
 
 int max_size(struct menu_t*);
@@ -74,6 +44,6 @@ int draw_menu(struct menu_t*);
 int draw_field(struct menu_t*);
 
 int clear_style(struct menu_t*);
-int set_style(struct menu_t*);
+int set_style(struct menu_t*, struct winsize*);
 
 #endif
