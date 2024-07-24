@@ -37,10 +37,13 @@ int draw_field(struct menu_t *menu) {
 	return 0;
 }
 
-int clear_style(struct menu_t *menu) {
+int clear_style(struct menu_t *menu, struct winsize *w) {
 	
-	/* Move cursor to beginning of line */
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	if (menu->cur_y > w->ws_row - 2) {
+		moveCursor(menu->ref_x + 1, menu->ref_y + w->ws_row - 2);
+	} else {
+		moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	}
 
 	/* Reset text highlighting */
 	if (menu->type == MENU) {
@@ -48,9 +51,12 @@ int clear_style(struct menu_t *menu) {
 	} else if (menu->type == FIELD) {
 		wprintf(L"\033[0m%*s", wcslen(((struct field_t**)menu->items)[menu->cur_y - 1]->field_name) + 1, "");
 	}
-
-	/* Move cursor back to beginning of line */
-	moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	
+	if (menu->cur_y > w->ws_row - 2) {
+		moveCursor(menu->ref_x + 1, menu->ref_y + w->ws_row - 2);
+	} else {
+		moveCursor(menu->ref_x + 1, menu->ref_y + menu->cur_y);
+	}
 
 	/* Redraw text with default text color */
 	if (menu->type == MENU) {
@@ -63,11 +69,6 @@ int clear_style(struct menu_t *menu) {
 }
 
 int set_style(struct menu_t *menu, struct winsize *w) {
-	
-
-		/* Need to change how this is handled to prevent from making holding cursor at bottom of screen so complicated */
-
-
 	if (menu->cur_y > w->ws_row - 2) {
 		moveCursor(menu->ref_x + 1, menu->ref_y + w->ws_row - 2);
 	} else {

@@ -43,7 +43,7 @@ int draw_box(int, int, int, int);
 int draw_menu(struct menu_t*);
 int draw_field(struct menu_t*);
 
-int clear_style(struct menu_t*);
+int clear_style(struct menu_t*, struct winsize*);
 int set_style(struct menu_t*, struct winsize*);
 
 #endif

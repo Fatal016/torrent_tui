@@ -48,8 +48,7 @@ int main(int argc, char** argv) {
 	/* Data Initialization */
 	tracker_info_menu.size_y = bencode.announce_list_index;
 	
-	tracker_info_menu_items = (struct field_t**)malloc(tracker_info_menu.size_y * sizeof(struct field_t*));
-	tracker_info_menu.items = (void *)tracker_info_menu_items;	
+	tracker_info_menu.items = (void *)malloc(tracker_info_menu.size_y * sizeof(struct field_t*));
 
 	for (int i = 0; i < tracker_info_menu.size_y; i++) {
 		((struct field_t**)tracker_info_menu.items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
@@ -111,32 +110,40 @@ int main(int argc, char** argv) {
 
 		switch(ch) {
 			case UP_ARROW:
-				if (active_menu->size_y > w.ws_row && active_menu->cur_y == 1) {
-					wprintf(L"\033[1T");
-				//	draw_box(active_menu->size_x, active_menu->size_y, 1, 1);
-				//	draw_menu(active_menu);
+				if (active_menu->item_offset > 0) {
+					active_menu->item_offset--;
+					draw_box(active_menu->size_x, active_menu->size_y, active_menu->ref_x, active_menu->ref_y);
+					wprintf(L"\033[1S");
+					clear_style(active_menu, &w);
+					active_menu->cur_y--;
+					wprintf(L"\033[2J\033[H");
+					draw_field(active_menu);
+					set_style(active_menu, &w);
+					wprintf(L"\033[0m");
 				} else {
 
 					if (active_menu->cur_y > 1) {
-						clear_style(active_menu);
+						clear_style(active_menu, &w);
 						active_menu->cur_y--;
 						set_style(active_menu, &w);
 					} else {
-						clear_style(active_menu);
-						active_menu->cur_y = active_menu->size_y;
-						set_style(active_menu, &w);
+				//		clear_style(active_menu);
+				//		active_menu->cur_y = active_menu->size_y;
+				//		set_style(active_menu, &w);
 					}
 				}
 				break;
 			case DOWN_ARROW:
-				if (active_menu->size_y > w.ws_row && active_menu->cur_y > w.ws_row - 3 && active_menu->cur_y < active_menu->size_y) {
+				if (active_menu->size_y > w.ws_row && active_menu->cur_y > w.ws_row - 2 && active_menu->cur_y <= active_menu->size_y) {
+				
+					if (active_menu->cur_y == active_menu->size_y) break;
+
+
 					draw_box(active_menu->size_x, active_menu->size_y, active_menu->ref_x, active_menu->ref_y);
 					wprintf(L"\033[1S");
-					clear_style(active_menu);
+					clear_style(active_menu, &w);
 					active_menu->cur_y++;
-
 					wprintf(L"\033[2J\033[H");
-					//active_menu->cur_y = 1;
 					active_menu->item_offset++;
 					draw_field(active_menu);
 					set_style(active_menu, &w);
@@ -144,13 +151,13 @@ int main(int argc, char** argv) {
 				} else {
 					active_menu->item_offset = 0;
 					if (active_menu->cur_y < active_menu->size_y) {
-						clear_style(active_menu);
+						clear_style(active_menu, &w);
 						active_menu->cur_y++;
 						set_style(active_menu, &w);
 					} else {
-						clear_style(active_menu);
-						active_menu->cur_y = 1;
-						set_style(active_menu, &w);
+				//		clear_style(active_menu);
+				//		active_menu->cur_y = 1;
+				//		set_style(active_menu, &w);
 					}
 				}
 				break;	
