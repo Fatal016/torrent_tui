@@ -10,6 +10,7 @@
 #include "../Inc/tui.h"
 #include "../Inc/menu.h"
 #include "../Inc/menu_templates.h"
+#include "../Inc/data.h"
 #include "../Inc/bencode.h"
 
 int main(int argc, char** argv) {
@@ -23,22 +24,7 @@ int main(int argc, char** argv) {
 
 	char *filepath = argv[1];
 
-	struct bencode_module bencode = {
-		.announce               = NULL,
-		.announce_list          = NULL,
-		.comment                = NULL,
-		.created_by             = NULL,
-		.encoding               = NULL,
-		.info                   = NULL,
-		.url_list               = NULL,
-		.head_pointer           = NULL,
-		.size_pointer           = NULL,
-		.announce_list_index    = 0,
-		.info_file_index        = 0,
-		.file_path_index        = 0,
-		.url_list_index         = 0
-	};
-
+	struct bencode_module bencode;
 	result = parse_single(filepath, &bencode);
 
 	/* Setting non-canonical so getchar() is processed immediately */
@@ -46,34 +32,22 @@ int main(int argc, char** argv) {
 
 	
 	/* Data Initialization */
-	tracker_info_menu.size_y = bencode.announce_list_index;
-	
+	tracker_info_menu.size_y = bencode.announce_list_index;	
 	tracker_info_menu.items = (void *)malloc(tracker_info_menu.size_y * sizeof(struct field_t*));
-
-	for (int i = 0; i < tracker_info_menu.size_y; i++) {
-		((struct field_t**)tracker_info_menu.items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
-		((struct field_t**)tracker_info_menu.items)[i]->field_name = (wchar_t*)malloc(4 * sizeof(wchar_t));
-		((struct field_t**)tracker_info_menu.items)[i]->field_value = (wchar_t*)malloc(128 * sizeof(wchar_t));	
-
-		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_name, 3*sizeof(wchar_t), L"%03d:", i); 
-		swprintf(((struct field_t**)tracker_info_menu.items)[i]->field_value, strlen(bencode.announce_list[i]) * sizeof(wchar_t), L"%s", bencode.announce_list[i]);
-	}
+	constructTrackerList(&tracker_info_menu, &bencode);
 	resize_menu(&tracker_info_menu);
 
 	
 	torrent_info_menu_items = (struct field_t**)malloc(torrent_info_menu.size_y * sizeof(struct field_t*));
-	torrent_info_menu.items = (void *)torrent_info_menu_items;
-
-	for (int i = 0; i < torrent_info_menu.size_y; i++) {
-		int namelen = wcslen(torrent_info_menu_items_template[i].field_name);
-
-		((struct field_t**)torrent_info_menu.items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
-		((struct field_t**)torrent_info_menu.items)[i]->field_name = (wchar_t*)malloc(128 * sizeof(wchar_t));
-		
-		swprintf(((struct field_t**)torrent_info_menu_items)[i]->field_name, namelen * sizeof(wchar_t), L"%ls", torrent_info_menu_items_template[i].field_name);
-	}
-
+	torrent_info_menu.items = (void *)torrent_info_menu_items;	
+	fillName(&torrent_info_menu, torrent_info_menu_items_template);
 	resize_menu(&category_menu);
+
+	meta_data_menu_items = (struct field_t**)malloc(meta_data_menu.size_y * sizeof(struct field_t*));
+	meta_data_menu.items = (void *)meta_data_menu_items;	
+	constructMetaInfo(&meta_data_menu, meta_data_menu_items_template, &bencode);
+	resize_menu(&meta_data_menu);
+
 
 	struct menu_t *active_menu = &category_menu;
 

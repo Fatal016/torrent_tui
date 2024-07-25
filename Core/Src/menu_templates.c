@@ -81,16 +81,16 @@ struct menu_t meta_data_menu = {
 	.ref_y			= 1,
 	
 	.size_x			= 1,
-	.size_y			= 0,
+	.size_y			= 5,
 
 	.cur_x			= 1,
 	.cur_y			= 1
 };
 struct field_t meta_data_menu_items_template[] = {
-	{L"Directory   :", NULL},
+	{L"Name        :", NULL},
 	{L"Created On  :", NULL},
 	{L"Created By  :", NULL},
 	{L"Comment     :", NULL},
 	{L"Piece Length:", NULL},
-	{L"Private     :", NULL}
+//	{L"Private     :", NULL}
 };

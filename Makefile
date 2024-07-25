@@ -5,12 +5,14 @@ CC_SOURCES = \
 Core/Src/tui.c \
 Core/Src/menu.c \
 Core/Src/menu_templates.c \
+Core/Src/data.c \
 Core/Src/bencode.c
 
 HEADERS = \
 Core/Inc/tui.h \
 Core/Inc/menu.h \
 Core/Inc/menu_templates.h \
+Core/Inc/data.h \
 Core/Inc/bencode.h
 
 EXECUTABLE = tui

@@ -26,7 +26,21 @@ int parse_single(char *filepath, struct bencode_module* bencode) {
 	bencode->info_file_size			= INFO_FILE_SIZE;
 	bencode->file_path_size			= FILE_PATH_SIZE;
 	bencode->url_list_size			= URL_LIST_SIZE;
-	
+
+	bencode->announce 				= NULL;
+	bencode->announce_list 			= NULL;
+	bencode->comment 				= NULL;
+	bencode->created_by 			= NULL;
+	bencode->encoding 				= NULL;
+	bencode->info 					= NULL;
+	bencode->url_list 				= NULL;
+	bencode->head_pointer 			= NULL;
+	bencode->size_pointer 			= NULL;
+	bencode->announce_list_index 	= 0;
+	bencode->info_file_index 		= 0;
+	bencode->file_path_index 		= 0;
+	bencode->url_list_index 		= 0;
+
 	/* Error checking for existence of file */
 	if (file == NULL) {
 		fprintf(stderr, "Error reading from file: File not found\n");
