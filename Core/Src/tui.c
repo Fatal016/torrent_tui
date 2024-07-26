@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
 				}
 				break;
 			case DOWN_ARROW:
-				if (active_menu->size_y > w.ws_row && active_menu->cur_y > w.ws_row - 2 && active_menu->cur_y <= active_menu->size_y) {
+				if (active_menu->size_y > w.ws_row && active_menu->cur_y >= w.ws_row - 2 && active_menu->cur_y <= active_menu->size_y) {
 				
 					if (active_menu->cur_y == active_menu->size_y) break;
 
