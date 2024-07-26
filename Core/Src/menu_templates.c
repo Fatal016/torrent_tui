@@ -6,8 +6,8 @@
 struct menu_t *category_menu_items[] = {
 	&torrent_info_menu,
 	&tracker_info_menu,
-	&meta_data_menu
-//	files_menu
+	&meta_info_menu,
+	&files_menu
 };
 
 struct menu_t category_menu = {
@@ -21,7 +21,7 @@ struct menu_t category_menu = {
 	.ref_y 			= 1,
 	
 	.size_x			= 1,
-	.size_y 		= 3,
+	.size_y 		= 4,
 	
 	.cur_x 			= 1,
 	.cur_y 			= 1
@@ -69,9 +69,9 @@ struct menu_t tracker_info_menu = {
 };
 
 
-struct field_t **meta_data_menu_items;
-struct menu_t meta_data_menu = {
-	.pretty_name	= L"Meta Data",
+struct field_t **meta_info_menu_items;
+struct menu_t meta_info_menu = {
+	.pretty_name	= L"Meta Info",
 
 	.items			= NULL,
 	.type			= FIELD,
@@ -86,11 +86,29 @@ struct menu_t meta_data_menu = {
 	.cur_x			= 1,
 	.cur_y			= 1
 };
-struct field_t meta_data_menu_items_template[] = {
+struct field_t meta_info_menu_items_template[] = {
 	{L"Name        :", NULL},
 	{L"Created On  :", NULL},
 	{L"Created By  :", NULL},
 	{L"Comment     :", NULL},
 	{L"Piece Length:", NULL},
 //	{L"Private     :", NULL}
+};
+
+struct field_t **files_menu_items;
+struct menu_t files_menu = {
+	.pretty_name	= L"Files",
+
+	.items			= NULL,
+	.type			= FIELD,
+	.prev_menu		= &category_menu,
+
+	.ref_x			= 1,
+	.ref_y			= 1,
+
+	.size_x			= 1,
+	.size_y			= 1,
+
+	.cur_x			= 1,
+	.cur_y			= 1
 };

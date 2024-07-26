@@ -15,7 +15,7 @@
 
 int main(int argc, char** argv) {
 
-	int result;
+	int result, ch;
 
 	if (argc != 2) {
 		printf("Usage: ./tui <bencode file>");
@@ -27,58 +27,62 @@ int main(int argc, char** argv) {
 	struct bencode_module bencode;
 	result = parse_single(filepath, &bencode);
 
-	/* Setting non-canonical so getchar() is processed immediately */
+	if (result != 0) {
+		printf("Error parsing file\n");
+		return -1;
+	}
+
+	/* Setting non-canonical so getchar is processed immediately */
 	set_noncanonical_mode();
-
 	
-	/* Data Initialization */
-	tracker_info_menu.size_y = bencode.announce_list_index;	
-	tracker_info_menu.items = (void *)malloc(tracker_info_menu.size_y * sizeof(struct field_t*));
-	constructTrackerList(&tracker_info_menu, &bencode);
-	resize_menu(&tracker_info_menu);
-
-	
-	torrent_info_menu_items = (struct field_t**)malloc(torrent_info_menu.size_y * sizeof(struct field_t*));
-	torrent_info_menu.items = (void *)torrent_info_menu_items;	
-	fillName(&torrent_info_menu, torrent_info_menu_items_template);
-	resize_menu(&category_menu);
-
-	meta_data_menu_items = (struct field_t**)malloc(meta_data_menu.size_y * sizeof(struct field_t*));
-	meta_data_menu.items = (void *)meta_data_menu_items;	
-	constructMetaInfo(&meta_data_menu, meta_data_menu_items_template, &bencode);
-	resize_menu(&meta_data_menu);
-
-
-	struct menu_t *active_menu = &category_menu;
-
-
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
 	setlocale(LC_CTYPE, "");  
 
-	wprintf(L"\033[2J\033[H");
+	/***********************/
+	/* Data Initialization */
+	/***********************/
 
-	resize_menu(&category_menu);
-	draw_menu(&category_menu);
-
-	category_menu.cur_y = 1;
-	set_style(&category_menu, &w);	
-
-
-	
-	torrent_info_menu_items[0]->field_value = strtowstr(argv[1]);
-//	swprintf(torrent_info_menu_items[0].field_value, strlen(argv[1]), L"%s", argv[1]);
+	/* Torrent Info */
+	torrent_info_menu_items = (struct field_t**)malloc(torrent_info_menu.size_y * sizeof(struct field_t*));
+	torrent_info_menu.items = (void *)torrent_info_menu_items;	
+	constructTorrentInfo(&torrent_info_menu, torrent_info_menu_items_template);
+	swprintf(torrent_info_menu_items[0]->field_value, strlen(argv[1]) * sizeof(wchar_t), L"%s", argv[1]);
 	resize_menu(&torrent_info_menu);
 
+	/* Tracker Info */
+	tracker_info_menu.size_y = bencode.announce_list_index;	
+	tracker_info_menu.items = (void *)malloc(tracker_info_menu.size_y * sizeof(struct field_t*));
+	constructTrackerInfo(&tracker_info_menu, &bencode);
+	resize_menu(&tracker_info_menu);
+
+	/* Meta Info */
+	meta_info_menu_items = (struct field_t**)malloc(meta_info_menu.size_y * sizeof(struct field_t*));
+	meta_info_menu.items = (void *)meta_info_menu_items;	
+	constructMetaInfo(&meta_info_menu, meta_info_menu_items_template, &bencode);
+	resize_menu(&meta_info_menu);
+
+	/* Files */
+	files_menu.size_y = bencode.info_file_index;
+	files_menu.items = (void *)malloc(files_menu.size_y * sizeof(struct field_t*));
+	constructFiles(&files_menu, &bencode);
+	resize_menu(&files_menu);
+
+
+	wprintf(L"\033[2J\033[H");
+
+	struct menu_t *active_menu = &category_menu;
+	
+	resize_menu(active_menu);
+	draw_menu(active_menu);
+	set_style(active_menu, &w);	
 
 	/* Hiding cursor */
 	wprintf(L"\033[?25l");
 
 	fflush(stdout);
 	
-	int ch;
-
 	while (1) {
 		ch = getchar();
 
@@ -182,13 +186,4 @@ void set_noncanonical_mode() {
 	tcgetattr(STDIN_FILENO, &term);
 	term.c_lflag &= ~(ICANON | ECHO);
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-}
-
-wchar_t* strtowstr(char *str) {
-
-	size_t len = strlen(str);
-	wchar_t *wstr = malloc(len * sizeof(wchar_t));
-	mbstowcs(wstr, str, len);
-
-	return wstr;
 }

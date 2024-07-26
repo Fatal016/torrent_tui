@@ -5,13 +5,16 @@
 #include "../Inc/menu.h"
 #include "../Inc/bencode.h"
 
-int fillName(struct menu_t *menu, struct field_t *template){
+int constructTorrentInfo(struct menu_t *menu, struct field_t *template){
 
 	for (int i = 0; i < menu->size_y; i++) {
 		int namelen = wcslen(template[i].field_name);
 
 		((struct field_t**)menu->items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
 		((struct field_t**)menu->items)[i]->field_name = (wchar_t*)malloc(128 * sizeof(wchar_t));
+		
+		((struct field_t**)menu->items)[i]->field_value = (wchar_t*)malloc(128 * sizeof(wchar_t));
+
 
 		swprintf(((struct field_t**)menu->items)[i]->field_name, namelen * sizeof(wchar_t), L"%ls", template[i].field_name);
 	}
@@ -19,7 +22,7 @@ int fillName(struct menu_t *menu, struct field_t *template){
 	return 0;
 }
 
-int constructTrackerList(struct menu_t *menu, struct bencode_module *bencode) {
+int constructTrackerInfo(struct menu_t *menu, struct bencode_module *bencode) {
 
 	for (int i = 0; i < menu->size_y; i++) {
 		((struct field_t**)menu->items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
@@ -33,13 +36,30 @@ int constructTrackerList(struct menu_t *menu, struct bencode_module *bencode) {
 	return 0;
 }
 
+int constructFiles(struct menu_t *menu, struct bencode_module *bencode) {
+	
+	for (int i = 0; i < menu->size_y; i++) {
+		((struct field_t**)menu->items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
+		((struct field_t**)menu->items)[i]->field_name = (wchar_t*)malloc(4 * sizeof(wchar_t));
+		((struct field_t**)menu->items)[i]->field_value = (wchar_t*)malloc(128 * sizeof(wchar_t));
+
+		swprintf(((struct field_t**)menu->items)[i]->field_name, 3*sizeof(wchar_t), L"%03d:", i);
+		
+		for (int j = 0; j < bencode->info->files[i]->file_path_index; j++) {
+			swprintf(((struct field_t**)menu->items)[i]->field_value, strlen(bencode->info->files[i]->path[j]) * sizeof(wchar_t), L"/%s", bencode->info->files[i]->path[j]);
+		}
+	}
+
+	return 0;
+}
+
 int constructMetaInfo(struct menu_t *menu, struct field_t *template, struct bencode_module *bencode) {
 	
 	for (int i = 0; i < menu->size_y; i++) {
 			
 		int namelen = wcslen(template[i].field_name);		
 
-((struct field_t**)menu->items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
+		((struct field_t**)menu->items)[i] = (struct field_t*)malloc(sizeof(struct field_t*));
 		((struct field_t**)menu->items)[i]->field_name = (wchar_t*)malloc(128 * sizeof(wchar_t));
 		((struct field_t**)menu->items)[i]->field_value = (wchar_t*)malloc(128 * sizeof(wchar_t));
 	

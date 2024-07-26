@@ -8,6 +8,5 @@
 
 void moveCursor(int, int);
 void set_noncanonical_mode(void);
-wchar_t* strtowstr(char*);
 
 #endif
