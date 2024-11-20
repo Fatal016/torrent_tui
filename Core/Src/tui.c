@@ -6,6 +6,7 @@
 #include <string.h>
 #include <wchar.h>
 #include <termios.h>
+#include <signal.h>
 
 #include "../Inc/tui.h"
 #include "../Inc/menu.h"
@@ -34,6 +35,8 @@ int main(int argc, char** argv) {
 
 	/* Setting non-canonical so getchar is processed immediately */
 	set_noncanonical_mode();
+
+	signal(SIGINT, handle_signal);
 	
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -178,8 +181,7 @@ int main(int argc, char** argv) {
 	}
 }
 
-void moveCursor(int x, int y)
-{
+void moveCursor(int x, int y) {
 	wprintf(L"\033[%d;%dH", y, x);
 }
 
@@ -188,4 +190,14 @@ void set_noncanonical_mode() {
 	tcgetattr(STDIN_FILENO, &term);
 	term.c_lflag &= ~(ICANON | ECHO);
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
+
+void handle_signal(int signal) {
+	if (signal == SIGINT) {
+		wprintf(L"\033[?25l");
+		wprintf(L"\033[2J\033[H");
+		wprintf(L"\033[?25h");
+	}
+
+	exit(0);
 }

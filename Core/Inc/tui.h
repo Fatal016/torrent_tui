@@ -9,4 +9,6 @@
 void moveCursor(int, int);
 void set_noncanonical_mode(void);
 
+void handle_signal(int);
+
 #endif
