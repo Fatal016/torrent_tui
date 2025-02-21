@@ -3,6 +3,7 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <openssl/evp.h>
 
 #include "../Inc/bencode.h"
 
@@ -339,24 +340,17 @@ void parse_key(struct bencode_module *bencode, FILE *file) {
 		long remainingSize = fileSize - start_info + 2;
 
 		char *source_buffer = (char *)malloc(remainingSize + 1);
- /*
+ 
 	  	if (source_buffer == NULL) {
         	printf("Memory allocation failed\n");
         	fclose(file);
-        	fclose(destFile);
         	return 1;
     	}
-*/
-		fseek(file, start_info, SEEK_SET);  // Move the pointer back to the saved position
+
     	size_t bytesRead = fread(source_buffer, 1, remainingSize - 3, file);
-    	if (bytesRead > 0) {
-        	//source_buffer[bytesRead] = '\0';  // Null-terminate the string (optional if writing binary)
-        	fwrite(source_buffer, 1, bytesRead, destFile);
-    	}
+    	sha1(source_buffer, &bytesRead);
+		fseek(file, start_info, SEEK_SET);  // Move the pointer back to the saved position
 
-
-		printf("Bytes Read: %ld\n", bytesRead);
-		exit(1);
 		bencode->info = (struct bencode_info *)malloc(sizeof(struct bencode_info));
 		bencode->head_pointer = NULL;
 
@@ -410,6 +404,38 @@ void parse_key(struct bencode_module *bencode, FILE *file) {
 		/* Setting pointer to effective NULL value to then have unexpected key-value pairs ignored */
 		bencode->head_pointer = (void *)IGNORE_FLAG;	
 	}
+}
+
+int sha1(char *info_dict, size_t *len) {
+	
+	//unsigned char hash[SHA_DIGEST_LENGTH];
+
+	EVP_MD_CTX *ctx;
+	ctx = EVP_MD_CTX_create();
+
+	const EVP_MD *md;
+
+	md = EVP_get_digestbyname("sha1");
+	if(!md) {
+       printf("Unknown message digest %s\n", "sha1");
+	}
+
+
+	EVP_DigestInit_ex(ctx, md, NULL);
+
+
+	unsigned char md_value[EVP_MAX_MD_SIZE];	
+	int md_len, i;
+	EVP_DigestUpdate(ctx, info_dict, *len);
+
+	EVP_DigestFinal_ex(ctx, md_value, &md_len);
+
+	printf("SHA1 Hash: ");
+	for (i = 0; i < md_len; i++) {
+		printf("%02x", md_value[i]);
+	}
+	printf("\n");
+	return 0;
 }
 
 
