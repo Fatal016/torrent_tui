@@ -11,6 +11,10 @@
 #define INFO_FILE_SIZE 128
 #define FILE_PATH_SIZE 10
 #define URL_LIST_SIZE 1
+	
+FILE *destFile;
+
+long start_info;
 
 int parse_single(char *filepath, struct bencode_module* bencode) {
 
@@ -19,6 +23,9 @@ int parse_single(char *filepath, struct bencode_module* bencode) {
 	id type;
 	
 	FILE *file = fopen(filepath, "r");
+
+	destFile = fopen("output.txt", "w");
+    //long end_info;
 
 	/* Struct initialization */
 	bencode->buffer_size 			= BUFFER_SIZE;
@@ -139,7 +146,7 @@ int dictionary(struct bencode_module *bencode, FILE *file) {
 
 				/* If member of struct to place data hasn't been set, we need to set it */
 				if (bencode->head_pointer == NULL) {
-					parse_key(bencode);
+					parse_key(bencode, file);
 				} else {
 				
 					/* If not looking for key, store buffer as value */
@@ -290,7 +297,7 @@ int end(struct bencode_module *bencode __attribute__((unused)), FILE *file __att
 	return END_OF_TYPE;
 }
 
-void parse_key(struct bencode_module *bencode) {
+void parse_key(struct bencode_module *bencode, FILE *file) {
 	if (strcmp(bencode->buffer, "announce") == 0) {
 		
 		bencode->announce = (char *)malloc(BUFFER_SIZE * sizeof(char));
@@ -324,7 +331,32 @@ void parse_key(struct bencode_module *bencode) {
 		bencode->head_pointer = (void *)bencode->encoding;
 		
 	} else if (strcmp(bencode->buffer, "info") == 0) {
-			
+		
+		start_info = ftell(file);
+		fseek(file, 0, SEEK_END);
+		long fileSize = ftell(file);
+
+		long remainingSize = fileSize - start_info + 2;
+
+		char *source_buffer = (char *)malloc(remainingSize + 1);
+ /*
+	  	if (source_buffer == NULL) {
+        	printf("Memory allocation failed\n");
+        	fclose(file);
+        	fclose(destFile);
+        	return 1;
+    	}
+*/
+		fseek(file, start_info, SEEK_SET);  // Move the pointer back to the saved position
+    	size_t bytesRead = fread(source_buffer, 1, remainingSize - 3, file);
+    	if (bytesRead > 0) {
+        	//source_buffer[bytesRead] = '\0';  // Null-terminate the string (optional if writing binary)
+        	fwrite(source_buffer, 1, bytesRead, destFile);
+    	}
+
+
+		printf("Bytes Read: %ld\n", bytesRead);
+		exit(1);
 		bencode->info = (struct bencode_info *)malloc(sizeof(struct bencode_info));
 		bencode->head_pointer = NULL;
 

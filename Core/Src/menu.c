@@ -97,8 +97,6 @@ if (menu->type == MENU) {
 	return 0;
 }
 
-
-
 int draw_box(int size_x, int size_y, int ref_x, int ref_y) 
 {
 	wprintf(L"\033[%d;%dH", ref_y, ref_x);

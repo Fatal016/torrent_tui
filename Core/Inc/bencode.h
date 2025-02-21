@@ -96,7 +96,7 @@ int parse_single(char*, struct bencode_module*);
 
 
 /* Helper Functions */
-void parse_key(struct bencode_module*);
+void parse_key(struct bencode_module*, FILE*);
 int verify_int(char*, long long int*);
 
 
