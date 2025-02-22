@@ -52,6 +52,7 @@ int main(int argc, char** argv) {
 	torrent_info_menu.items = (void *)torrent_info_menu_items;	
 	constructTorrentInfo(&torrent_info_menu, torrent_info_menu_items_template);
 	swprintf(torrent_info_menu_items[0]->field_value, strlen(argv[1]) * sizeof(wchar_t), L"%s", argv[1]);
+	swprintf(torrent_info_menu_items[1]->field_value, strlen(bencode.info_hash) * sizeof(wchar_t), L"%s", bencode.info_hash_human_readable);
 	resize_menu(&torrent_info_menu);
 
 	/* Tracker Info */

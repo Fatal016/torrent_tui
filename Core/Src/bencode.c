@@ -13,10 +13,6 @@
 #define FILE_PATH_SIZE 10
 #define URL_LIST_SIZE 1
 	
-FILE *destFile;
-
-long start_info;
-
 int parse_single(char *filepath, struct bencode_module* bencode) {
 
 	char file_char;
@@ -24,9 +20,6 @@ int parse_single(char *filepath, struct bencode_module* bencode) {
 	id type;
 	
 	FILE *file = fopen(filepath, "r");
-
-	destFile = fopen("output.txt", "w");
-    //long end_info;
 
 	/* Struct initialization */
 	bencode->buffer_size 			= BUFFER_SIZE;
@@ -347,9 +340,15 @@ void parse_key(struct bencode_module *bencode, FILE *file) {
         	return 1;
     	}
 
-    	size_t bytesRead = fread(source_buffer, 1, remainingSize - 3, file);
-    	sha1(source_buffer, &bytesRead);
 		fseek(file, start_info, SEEK_SET);  // Move the pointer back to the saved position
+    	size_t bytesRead = fread(source_buffer, 1, remainingSize - 3, file);
+    	if (bytesRead > 0) {
+        	//source_buffer[bytesRead] = '\0';  // Null-terminate the string (optional if writing binary)
+        	fwrite(source_buffer, 1, bytesRead, destFile);
+    	}
+		fseek(file, start_info, SEEK_SET);  // Move the pointer back to the saved position
+
+		sha1(bencode, source_buffer, &bytesRead);
 
 		bencode->info = (struct bencode_info *)malloc(sizeof(struct bencode_info));
 		bencode->head_pointer = NULL;
@@ -406,35 +405,39 @@ void parse_key(struct bencode_module *bencode, FILE *file) {
 	}
 }
 
-int sha1(char *info_dict, size_t *len) {
-	
-	//unsigned char hash[SHA_DIGEST_LENGTH];
+int sha1(struct bencode_module *bencode, char *info_dict, size_t *len) {
 
 	EVP_MD_CTX *ctx;
 	ctx = EVP_MD_CTX_create();
 
 	const EVP_MD *md;
-
 	md = EVP_get_digestbyname("sha1");
+	
 	if(!md) {
        printf("Unknown message digest %s\n", "sha1");
 	}
 
-
 	EVP_DigestInit_ex(ctx, md, NULL);
 
+	/* need to create defines for v1 and v2 lengths, 40 and 64 characters depending on sha1 sha256 */
 
-	unsigned char md_value[EVP_MAX_MD_SIZE];	
-	int md_len, i;
+	unsigned char md_value[40];
+	unsigned int md_len;
 	EVP_DigestUpdate(ctx, info_dict, *len);
 
 	EVP_DigestFinal_ex(ctx, md_value, &md_len);
+	
+	bencode->info_hash = (char *)malloc(40 * sizeof(char));
+	bencode->info_hash_human_readable = (char *)malloc(40 * sizeof(char));
+	
+	strcpy((char *)bencode->info_hash, (char *)md_value);
 
-	printf("SHA1 Hash: ");
-	for (i = 0; i < md_len; i++) {
-		printf("%02x", md_value[i]);
+	char *ptr = bencode->info_hash_human_readable;
+
+	for (int i = 0; i < 20; i++) {
+		ptr += sprintf(ptr, "%02x", md_value[i]);
 	}
-	printf("\n");
+
 	return 0;
 }
 

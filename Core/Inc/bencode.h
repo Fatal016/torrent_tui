@@ -79,6 +79,7 @@ struct bencode_module {
 	long long int buffer_size;
 
 	char* info_hash;
+	char* info_hash_human_readable;
 };
 
 /* Serves as template for return-type of 'identify' */
@@ -99,8 +100,9 @@ int parse_single(char*, struct bencode_module*);
 
 /* Helper Functions */
 void parse_key(struct bencode_module*, FILE*);
+int sha1(struct bencode_module*, char*, size_t*);
+
 int verify_int(char*, long long int*);
-int sha1(char*, size_t*);
 
 /* Tools */
 void printBencode(struct bencode_module *bencode);
