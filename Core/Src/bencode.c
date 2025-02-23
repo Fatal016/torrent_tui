@@ -13,8 +13,6 @@
 #define FILE_PATH_SIZE 10
 #define URL_LIST_SIZE 1
 
-FILE *destFile;
-
 int parse_single(char *filepath, struct bencode_module* bencode) {
 
 	char file_char;
@@ -22,9 +20,6 @@ int parse_single(char *filepath, struct bencode_module* bencode) {
 	id type;
 	
 	FILE *file = fopen(filepath, "r");
-
-	destFile = fopen("output.txt", "w");
-
 
 	/* Struct initialization */
 	bencode->buffer_size 			= BUFFER_SIZE;
@@ -167,31 +162,11 @@ int dictionary(struct bencode_module *bencode, FILE *file) {
 								len_read = fread(info_buffer, 1, info_size, file);
 					
 								sha1(bencode, info_buffer, &len_read);
+								
+								fseek(file, bencode->info_end, SEEK_SET);
 
 								free(info_buffer);
-							/*	
-								bencode->info_end = ftell(file);
-							
-								long int sanity, info_size;
-								size_t len_read;
-
-								sanity = ftell(file);
-								info_size = bencode->info_end - bencode->info_start;
 								
-								char *info_buffer = (char *)malloc(info_size * sizeof(char));
-							
-								//fseek(file, bencode->info_start, SEEK_SET);
-								fseek(file, bencode->info_start, SEEK_SET);	
-								len_read = fread(info_buffer, 1, info_size, file);
-
-								fseek(file, sanity, SEEK_SET);
-								
-								fwrite(info_buffer, 1, info_size, destFile);
-
-
-								sha1(bencode, info_buffer, &len_read);
-							*/
-								fseek(file, bencode->info_end, SEEK_SET);
 							}	
 						}
 

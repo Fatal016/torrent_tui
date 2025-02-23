@@ -1,7 +1,7 @@
-#include "bencode.h"
-
 #ifndef H_DATA
 #define H_DATA
+
+#include "bencode.h"
 
 int constructTorrentInfo(struct menu_t*, struct field_t*);
 int constructTrackerInfo(struct menu_t*, struct bencode_module*);

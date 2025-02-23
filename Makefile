@@ -6,14 +6,18 @@ Core/Src/tui.c \
 Core/Src/menu.c \
 Core/Src/menu_templates.c \
 Core/Src/data.c \
-Core/Src/bencode.c
+Core/Src/bencode.c \
+Core/Src/client.c \
+Core/Src/client_utils.c
 
 HEADERS = \
 Core/Inc/tui.h \
 Core/Inc/menu.h \
 Core/Inc/menu_templates.h \
 Core/Inc/data.h \
-Core/Inc/bencode.h
+Core/Inc/bencode.h \
+Core/Inc/client.h \
+Core/Inc/client_utils.h
 
 EXECUTABLE = tui.bin
 

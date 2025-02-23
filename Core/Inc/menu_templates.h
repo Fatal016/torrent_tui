@@ -1,7 +1,7 @@
-#include "tui.h"
-
 #ifndef H_MENU_TEMPLATES
 #define H_MENU_TEMPLATES
+
+#include "tui.h"
 
 extern struct menu_t category_menu;
 extern struct menu_t *category_menu_items[];

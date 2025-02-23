@@ -13,6 +13,7 @@
 #include "../Inc/menu_templates.h"
 #include "../Inc/data.h"
 #include "../Inc/bencode.h"
+#include "../Inc/client.h"
 
 int main(int argc, char** argv) {
 
@@ -26,12 +27,22 @@ int main(int argc, char** argv) {
 	char *filepath = argv[1];
 
 	struct bencode_module bencode;
-	result = parse_single(filepath, &bencode);
 
+	result = parse_single(filepath, &bencode);
 	if (result != 0) {
 		printf("Error parsing file\n");
 		return -1;
 	}
+
+
+	struct tracker_properties props = {
+		.protocol	= (char *)malloc(sizeof(char) * 255),
+		.hostname	= (char *)malloc(sizeof(char) * 253),
+		.port		= (char *)malloc(sizeof(char) * 5),
+		.path		= (char *)malloc(sizeof(char) * 2048)
+	};
+
+	result = get_tracker(&bencode, &props);
 
 	/* Setting non-canonical so getchar is processed immediately */
 	set_noncanonical_mode();

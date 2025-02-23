@@ -1,8 +1,8 @@
-#include "tui.h"
-#include <sys/ioctl.h>
-
 #ifndef H_MENU
 #define H_MENU
+
+#include "tui.h"
+#include <sys/ioctl.h>
 
 typedef enum {
 	MENU,

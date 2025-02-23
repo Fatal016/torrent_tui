@@ -13,7 +13,6 @@
 
 #define IGNORE_FLAG -1
 
-
 /* Struct for bencode -> info -> files */
 struct info_file {
 	unsigned long int* length;
