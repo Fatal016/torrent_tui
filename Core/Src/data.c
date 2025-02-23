@@ -46,7 +46,9 @@ int constructFiles(struct menu_t *menu, struct bencode_module *bencode) {
 		((struct field_t**)menu->items)[i]->field_value = (wchar_t*)malloc(128 * sizeof(wchar_t));
 
 		swprintf(((struct field_t**)menu->items)[i]->field_name, 3*sizeof(wchar_t), L"%03d:", i);
-		
+
+		/* resetting string without calloc */
+		((struct field_t**)menu->items)[i]->field_value[0] = '\0';
 		for (int j = 0; j < bencode->info->files[i]->file_path_index; j++) {
 			swprintf(temp, strlen(bencode->info->files[i]->path[j]) * sizeof(wchar_t), L"/%s", bencode->info->files[i]->path[j]);
 			wcscat(((struct field_t**)menu->items)[i]->field_value, temp);

@@ -69,8 +69,20 @@ int main(int argc, char** argv) {
 
 	/* Files */
 	files_menu.size_y = bencode.info_file_index;
-	files_menu.items = (void *)malloc(files_menu.size_y * sizeof(struct field_t*));
-	constructFiles(&files_menu, &bencode);
+	if (files_menu.size_y != 0) {
+		files_menu.items = (void *)malloc(files_menu.size_y * sizeof(struct field_t*));
+		constructFiles(&files_menu, &bencode);
+	} else {
+		files_menu.size_y = 1;
+
+		files_menu.items = (void *)malloc(sizeof(struct field_t*));
+		((struct field_t**)files_menu.items)[0] = (struct field_t*)malloc(sizeof(struct field_t*));
+		((struct field_t**)files_menu.items)[0]->field_name = (wchar_t*)malloc(sizeof(wchar_t));
+		((struct field_t**)files_menu.items)[0]->field_value = (wchar_t*)malloc(128 * sizeof(wchar_t));
+
+		swprintf(((struct field_t**)files_menu.items)[0]->field_name, 6 * sizeof(wchar_t), L"%s", "Name:");
+		swprintf(((struct field_t**)files_menu.items)[0]->field_value, strlen(bencode.info->name) * sizeof(wchar_t), L"%s", bencode.info->name);
+	}
 	resize_menu(&files_menu);
 
 

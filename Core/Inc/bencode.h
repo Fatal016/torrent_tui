@@ -74,6 +74,10 @@ struct bencode_module {
 	/*** Other Parameters ***/
 	/************************/
 
+	/* Info Hash Parameters */
+	size_t info_start;
+	size_t info_end;
+
 	/* Input buffer for filestream */
 	char* buffer;
 	long long int buffer_size;

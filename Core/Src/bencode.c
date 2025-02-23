@@ -12,7 +12,9 @@
 #define INFO_FILE_SIZE 128
 #define FILE_PATH_SIZE 10
 #define URL_LIST_SIZE 1
-	
+
+FILE *destFile;
+
 int parse_single(char *filepath, struct bencode_module* bencode) {
 
 	char file_char;
@@ -20,6 +22,9 @@ int parse_single(char *filepath, struct bencode_module* bencode) {
 	id type;
 	
 	FILE *file = fopen(filepath, "r");
+
+	destFile = fopen("output.txt", "w");
+
 
 	/* Struct initialization */
 	bencode->buffer_size 			= BUFFER_SIZE;
@@ -146,6 +151,50 @@ int dictionary(struct bencode_module *bencode, FILE *file) {
 					/* If not looking for key, store buffer as value */
 					if (bencode->head_pointer != (void *)IGNORE_FLAG) {
 						strcpy((char *)bencode->head_pointer, bencode->buffer);
+						
+						if (bencode->info != NULL) {
+							if (bencode->head_pointer == (void *)bencode->info->pieces) {
+								
+								size_t len_read;
+								long int info_size;
+								char* info_buffer;
+	
+								bencode->info_end = ftell(file);							
+	
+								info_size = bencode->info_end - bencode->info_start + 1;
+								info_buffer = (char *)malloc(info_size * sizeof(char));
+								fseek(file, bencode->info_start, SEEK_SET);	
+								len_read = fread(info_buffer, 1, info_size, file);
+					
+								sha1(bencode, info_buffer, &len_read);
+
+								free(info_buffer);
+							/*	
+								bencode->info_end = ftell(file);
+							
+								long int sanity, info_size;
+								size_t len_read;
+
+								sanity = ftell(file);
+								info_size = bencode->info_end - bencode->info_start;
+								
+								char *info_buffer = (char *)malloc(info_size * sizeof(char));
+							
+								//fseek(file, bencode->info_start, SEEK_SET);
+								fseek(file, bencode->info_start, SEEK_SET);	
+								len_read = fread(info_buffer, 1, info_size, file);
+
+								fseek(file, sanity, SEEK_SET);
+								
+								fwrite(info_buffer, 1, info_size, destFile);
+
+
+								sha1(bencode, info_buffer, &len_read);
+							*/
+								fseek(file, bencode->info_end, SEEK_SET);
+							}	
+						}
+
 						bencode->head_pointer = NULL;
 					}
 				}
@@ -325,32 +374,11 @@ void parse_key(struct bencode_module *bencode, FILE *file) {
 		bencode->head_pointer = (void *)bencode->encoding;
 		
 	} else if (strcmp(bencode->buffer, "info") == 0) {
-		
-		start_info = ftell(file);
-		fseek(file, 0, SEEK_END);
-		long fileSize = ftell(file);
-
-		long remainingSize = fileSize - start_info + 2;
-
-		char *source_buffer = (char *)malloc(remainingSize + 1);
- 
-	  	if (source_buffer == NULL) {
-        	printf("Memory allocation failed\n");
-        	fclose(file);
-        	return 1;
-    	}
-
-		fseek(file, start_info, SEEK_SET);  // Move the pointer back to the saved position
-    	size_t bytesRead = fread(source_buffer, 1, remainingSize - 3, file);
-    	if (bytesRead > 0) {
-        	//source_buffer[bytesRead] = '\0';  // Null-terminate the string (optional if writing binary)
-        	fwrite(source_buffer, 1, bytesRead, destFile);
-    	}
-		fseek(file, start_info, SEEK_SET);  // Move the pointer back to the saved position
-
-		sha1(bencode, source_buffer, &bytesRead);
 
 		bencode->info = (struct bencode_info *)malloc(sizeof(struct bencode_info));
+		bencode->info->pieces = NULL;
+
+		bencode->info_start = ftell(file);
 		bencode->head_pointer = NULL;
 
 	} else if (strcmp(bencode->buffer, "files") == 0) {
@@ -389,7 +417,7 @@ void parse_key(struct bencode_module *bencode, FILE *file) {
 		bencode->head_pointer = (void *)bencode->info->piece_length;
 		
 	} else if (strcmp(bencode->buffer, "pieces") == 0) {
-			
+
 		bencode->info->pieces = (char *)malloc(*bencode->info->piece_length * sizeof(char));
 		bencode->head_pointer = (void *)bencode->info->pieces;
 		
