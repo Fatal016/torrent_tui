@@ -369,7 +369,7 @@ void parse_key(struct bencode_module *bencode, FILE *file) {
 			bencode->head_pointer = (void *)bencode->info->files[bencode->info_file_index]->length;
 		} else {
 			/* Single file contents */
-			bencode->info->length = (long long int *)malloc(sizeof(long long int));
+			bencode->info->length = (long unsigned int *)malloc(sizeof(long int));
 			bencode->head_pointer= (void *)bencode->info->length;
 		}						
 
@@ -388,7 +388,7 @@ void parse_key(struct bencode_module *bencode, FILE *file) {
 		
 	} else if (strcmp(bencode->buffer, "piece length") == 0) {
 		
-		bencode->info->piece_length = (long long int *)malloc(sizeof(long long int));
+		bencode->info->piece_length = (long unsigned int *)malloc(sizeof(long int));
 		bencode->head_pointer = (void *)bencode->info->piece_length;
 		
 	} else if (strcmp(bencode->buffer, "pieces") == 0) {
@@ -483,7 +483,7 @@ void printBencode(struct bencode_module *bencode) {
 		printf("\n\n");
 	}
 	if (bencode->info->name != NULL) printf("\nName: %s\n", bencode->info->name);
-	if (bencode->info->piece_length != NULL) printf("Piece Length: %lld\n", *bencode->info->piece_length);
+	if (bencode->info->piece_length != NULL) printf("Piece Length: %ld\n", *bencode->info->piece_length);
 	if (bencode->info->pieces != NULL) printf("Pieces: %s\n\n", bencode->info->pieces);
 
 	if (bencode->url_list != NULL) {

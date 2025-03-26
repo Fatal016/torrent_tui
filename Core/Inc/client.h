@@ -34,17 +34,17 @@ struct connect_response {
 } __attribute__((packed));
 
 struct announce_request {
-	uint64_t connection_id;
+	uint64_t* connection_id;
 	uint32_t action;
-	uint32_t transaction_id;
-	char info_hash[20];
-	char peer_id[20];
-	uint64_t downloaded;
-	uint64_t left;
-	uint64_t uploaded;
+	uint32_t* transaction_id;
+	char* info_hash;
+	char* peer_id;
+	uint64_t* downloaded;
+	uint64_t* left;
+	uint64_t* uploaded;
 	uint64_t event;
-	uint64_t ip_address;
-	uint64_t key;
+//	uint64_t ip_address;
+//	uint64_t key;
 	uint64_t num_want;
 	uint64_t port;
 } __attribute__((packed));

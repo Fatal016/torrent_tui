@@ -15,7 +15,8 @@
 int protocol(struct tracker_properties *props, char *url) {
 	
 	int result, protocol_index;
-	ptrdiff_t length = 0;
+	ptrdiff_t length;
+	char *protocol_end;
 
 	char valid_protocols[3][5] = {
 		"udp",
@@ -23,8 +24,6 @@ int protocol(struct tracker_properties *props, char *url) {
 		"https"
 	};
 	int len_protocols = 3;
-
-	char *protocol_end;
 
 	protocol_end = strstr(url, "://");
 	if (protocol_end == NULL) {
@@ -45,6 +44,9 @@ int protocol(struct tracker_properties *props, char *url) {
 	}
 
 	result = hostname(props, protocol_end);
+	if (result != PARSE_SUCCESS) {
+		return result;
+	}
 
 	return PARSE_SUCCESS;
 }
@@ -54,7 +56,7 @@ int hostname(struct tracker_properties *props, char *protocol_end) {
 	int result;
 	
 	char *hostname_start, *hostname_end;
-	ptrdiff_t length = 0;
+	ptrdiff_t length;
 
 	hostname_start = protocol_end + 3 * sizeof(char);
 	hostname_end = strstr(hostname_start, ":");
@@ -72,6 +74,9 @@ int hostname(struct tracker_properties *props, char *protocol_end) {
 	props->hostname[length] = '\0';
 
 	result = port(props, hostname_end);
+	if (result != PARSE_SUCCESS) {
+		return result;
+	}
 
 	return PARSE_SUCCESS;
 }
@@ -90,6 +95,9 @@ int port(struct tracker_properties *props, char *hostname_end) {
 		port_end = strstr(port_start, "\0");
 	} else {
 		result = path(props, port_end);
+		if (result != PARSE_SUCCESS) {
+			return result;
+		}
 	}
 
 	length = port_end - port_start;
@@ -107,15 +115,11 @@ int port(struct tracker_properties *props, char *hostname_end) {
 		}
 	}
 
-	printf("Port: %s\n", props->port);
-
 	return PARSE_SUCCESS;
 }
 
 int path(struct tracker_properties *props, char *port_end) {
 	
-	int result;
-
 	strcpy(props->path, port_end);
 
 	return PARSE_SUCCESS;

@@ -6,6 +6,7 @@
 
 #include <netdb.h>
 #include <sys/socket.h>
+#include <curl/curl.h>
 
 #include "../Inc/client.h"
 #include "../Inc/client_utils.h"
@@ -19,19 +20,21 @@ int capture_tracker_properties(struct bencode_module *bencode, struct tracker_pr
 		return result;
 	}
 
-	return 0;
-
-//	result = hostname(props, protocol_end, &hostname_start)
+	return PARSE_SUCCESS;
 }
 
 int get_tracker(struct bencode_module *bencode, struct tracker_properties *props) {
-	
+		
 	int tracker_index, result;
 
+	/* defaulting to announce_list if present since entry index 0 is same as announce */
 	if (bencode->announce_list != NULL) {
 		for (tracker_index = 0; tracker_index < bencode->announce_list_index; tracker_index++) {
+			
+			/* parse tracker FQDN and capture properties */
 			result = capture_tracker_properties(bencode, props, &tracker_index);
 		
+			/* error handling for parsing FQDN */
 			if (result != PARSE_SUCCESS) {
 				return result;
 			}
@@ -47,7 +50,7 @@ int get_tracker(struct bencode_module *bencode, struct tracker_properties *props
 					fprintf(stderr, "Error socket: %s\n", strerror(errno));
 				}
 
-				char *return_buffer = (char *)malloc(16 * sizeof(char));
+				uint32_t *return_buffer = (uint32_t *)malloc(128 * sizeof(uint32_t));
 
 				struct connect_request connect_req = {
 					.protocol_id = htonll(0x41727101980),
@@ -102,8 +105,6 @@ timeout.tv_sec = 2;  // 5 seconds timeout
                     continue;
                 }
 
-
-
                 if (send(sfd, (void *)&connect_req, sizeof(connect_req), 0) != sizeof(connect_req)) {
                     fprintf(stderr, "partial/failed write\n");
                     return -2;
@@ -116,9 +117,9 @@ timeout.tv_sec = 2;  // 5 seconds timeout
                 }
 
                 struct connect_response connect_res = {
-                    .action = (uint32_t)return_buffer,
-                    .transaction_id = (uint32_t)(return_buffer + 4),
-                    .connection_id = (uint64_t)(return_buffer + 8)
+                    .action = ntohl(*return_buffer),
+                    .transaction_id = ntohl(*(return_buffer + 1)),
+                    .connection_id = ((uint64_t)ntohl(*(return_buffer + 2)) << 32) | (uint64_t)ntohl(*(return_buffer + 3))
                 };
 
 				printf("Response:\n\tAction: %x\n\tTransaction ID: %x\n\tConnection ID: %lx\n", connect_res.action, htonl(connect_res.transaction_id), htonll(connect_res.connection_id));
@@ -130,15 +131,33 @@ timeout.tv_sec = 2;  // 5 seconds timeout
                     continue;
                 }
 
+				char *peer_id = (char *)malloc(20 * sizeof(char));
+				peer_id	= curl_easy_escape(NULL, "TESTPEERIDTESTPEERID", 20);		
+
 				struct announce_request announce_req = {
-					.connection_id = (char)connect_res.connection_id,
+					.connection_id = &connect_res.connection_id,
 					.action = 1,
-					.transaction_id = (char)connect_res.transaction_id,
+					.transaction_id = &connect_res.transaction_id,
 					.info_hash = bencode->info_hash,
-					.peer_id = 
-				}
+					.peer_id = peer_id,
+					.downloaded = 0,
+					.left = bencode->info->length,
+					.uploaded = 0,
+					.event = 0,
+					.num_want = -1,
+					.port = 6881
+				};
 
+				if (send(sfd, (void *)&announce_req, sizeof(announce_req), 0) != sizeof(announce_req)) {
+                    fprintf(stderr, "partial/failed write\n");
+                    return -2;
+                }
 
+                nread = recv(sfd, return_buffer, 32, 0);
+                if (nread == -1) {
+                    perror("read");
+                    continue;
+                }
 			}
 		}
 	}

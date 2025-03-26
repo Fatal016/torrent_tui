@@ -25,8 +25,8 @@ struct info_file {
 struct bencode_info {
 	struct info_file** files;
 	char* name;
-	long long int* length;
-	long long int* piece_length;
+	long unsigned int* length;
+	long unsigned int* piece_length;
 	char* pieces;
 };
 

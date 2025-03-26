@@ -27,7 +27,7 @@ all: $(EXECUTABLE)
 	rm -f $(OBJECTS)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $@ -lssl -lcrypto
+	$(CC) $(CFLAGS) $(OBJECTS) -o $@ -lssl -lcrypto -lcurl
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@

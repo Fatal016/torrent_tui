@@ -34,15 +34,15 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-
+/*
 	struct tracker_properties props = {
 		.protocol	= (char *)malloc(sizeof(char) * 255),
 		.hostname	= (char *)malloc(sizeof(char) * 253),
 		.port		= (char *)malloc(sizeof(char) * 5),
 		.path		= (char *)malloc(sizeof(char) * 2048)
 	};
-
-	result = get_tracker(&bencode, &props);
+*/
+//	result = get_tracker(&bencode, &props);
 
 	/* Setting non-canonical so getchar is processed immediately */
 	set_noncanonical_mode();
